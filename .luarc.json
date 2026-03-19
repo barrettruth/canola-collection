@@ -1,0 +1,16 @@
+{
+  "runtime": {
+    "version": "LuaJIT",
+    "pathStrict": true
+  },
+  "workspace": {
+    "checkThirdParty": false,
+    "ignoreDir": [".direnv"]
+  },
+  "type": {
+    "checkTableShape": true
+  },
+  "completion": {
+    "callSnippet": "Replace"
+  }
+}
