@@ -4,12 +4,14 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     systems.url = "github:nix-systems/default";
+    vimdoc-language-server.url = "github:barrettruth/vimdoc-language-server";
   };
 
   outputs =
     {
       nixpkgs,
       systems,
+      vimdoc-language-server,
       ...
     }:
     let
@@ -24,6 +26,7 @@
           packages = [
             pkgs.stylua
             pkgs.selene
+            vimdoc-language-server.packages.${pkgs.system}.default
           ];
         };
       });
