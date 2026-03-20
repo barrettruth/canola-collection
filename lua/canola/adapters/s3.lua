@@ -260,6 +260,7 @@ M.perform_action = function(action, cb)
           dest_adapter.name
         )
       )
+      return
     end
 
     local src, _
@@ -294,6 +295,7 @@ M.perform_action = function(action, cb)
           dest_adapter.name
         )
       )
+      return
     end
 
     local src, _
