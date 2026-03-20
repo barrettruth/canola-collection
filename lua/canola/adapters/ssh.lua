@@ -114,7 +114,7 @@ end
 local _connections = {}
 ---@param url string
 ---@param allow_retry nil|boolean
----@return oil.sshFs
+---@return canola.sshFs
 local function get_connection(url, allow_retry)
   local res = M.parse_url(url)
   res.scheme = config.adapter_to_scheme.ssh
