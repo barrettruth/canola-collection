@@ -2,6 +2,7 @@ local canola = require('canola')
 
 describe('url', function()
   before_each(function()
+    require('canola.config').init()
     canola.register_adapter('canola-ssh://', 'ssh')
   end)
 
