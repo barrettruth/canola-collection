@@ -5,13 +5,13 @@ Optional adapters and extensions for
 
 ## Adapters
 
-| Plugin         | Scheme(s)                        | Description                          |
-| -------------- | -------------------------------- | ------------------------------------ |
-| canola-ssh     | `canola-ssh://`                  | Remote filesystem via SSH + SCP      |
-| canola-s3      | `canola-s3://`                   | AWS S3 via `aws` CLI                 |
-| canola-ftp     | `canola-ftp://`, `canola-ftps://`| FTP/FTPS via `curl`                  |
-| canola-trash   | `canola-trash://`                | OS-specific recycle bin              |
-| canola-git     | n/a                              | Git status decoration (planned)      |
+| Plugin       | Scheme(s)                         | Description                     |
+| ------------ | --------------------------------- | ------------------------------- |
+| canola-ssh   | `canola-ssh://`                   | Remote filesystem via SSH + SCP |
+| canola-s3    | `canola-s3://`                    | AWS S3 via `aws` CLI            |
+| canola-ftp   | `canola-ftp://`, `canola-ftps://` | FTP/FTPS via `curl`             |
+| canola-trash | `canola-trash://`                 | OS-specific recycle bin         |
+| canola-git   | n/a                               | Git status decoration (planned) |
 
 ## Extensions
 
@@ -33,8 +33,8 @@ dependency.
 }
 ```
 
-All adapters are lazy-loaded — they only activate when their URL scheme is
-first accessed. No adapter code runs at startup.
+All adapters are lazy-loaded — they only activate when their URL scheme is first
+accessed. No adapter code runs at startup.
 
 ## Configuration
 
