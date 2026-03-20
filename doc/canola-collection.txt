@@ -12,37 +12,37 @@ CONTENTS                                          *canola-collection-contents*
   Installation ...................... |canola-collection-install|
 
 ==============================================================================
-OVERVIEW                                                  *canola-collection*
+OVERVIEW                                                   *canola-collection*
 
 canola-collection provides optional adapters and extensions for canola.nvim.
 All adapters are lazy-loaded and only activate when their URL scheme is first
 accessed.
 
 ==============================================================================
-ADAPTERS                                         *canola-collection-adapters*
+ADAPTERS                                          *canola-collection-adapters*
 
-canola-ssh                                                       *canola-ssh*
+canola-ssh                                                        *canola-ssh*
   Browse remote filesystems via SSH. Uses SCP for file transfers.
   Scheme: `canola-ssh://[user@]host[:port]/path`
 
   Per-host configuration via `ssh_hosts` and `extra_scp_args` in
   `vim.g.canola`.
 
-canola-s3                                                         *canola-s3*
+canola-s3                                                          *canola-s3*
   Browse AWS S3 buckets via the `aws` CLI.
   Scheme: `canola-s3://bucket/prefix`
 
   Per-bucket configuration via `s3_buckets` and `extra_s3_args` in
   `vim.g.canola`.
 
-canola-ftp                                                       *canola-ftp*
+canola-ftp                                                        *canola-ftp*
   Browse FTP/FTPS servers via `curl`.
   Scheme: `canola-ftp://host/path` or `canola-ftps://host/path`
 
   Per-host configuration via `ftp_hosts` and `extra_curl_args` in
   `vim.g.canola`.
 
-canola-trash                                                   *canola-trash*
+canola-trash                                                    *canola-trash*
   OS-specific trash/recycle bin integration. Supports freedesktop (Linux),
   macOS, and Windows.
   Scheme: `canola-trash://path`
@@ -50,14 +50,14 @@ canola-trash                                                   *canola-trash*
   Used automatically when `delete_to_trash = true` in `vim.g.canola`.
 
 ==============================================================================
-EXTENSIONS                                     *canola-collection-extensions*
+EXTENSIONS                                      *canola-collection-extensions*
 
-canola-resession                                           *canola-resession*
+canola-resession                                            *canola-resession*
   Session restore integration for resession.nvim. Automatically saves and
   restores canola buffer state across sessions.
 
 ==============================================================================
-INSTALLATION                                      *canola-collection-install*
+INSTALLATION                                       *canola-collection-install*
 
 Requires canola.nvim as a dependency. Install with your package manager: >lua
 
