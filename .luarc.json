@@ -5,7 +5,8 @@
   },
   "workspace": {
     "checkThirdParty": false,
-    "ignoreDir": [".direnv"]
+    "ignoreDir": [".direnv"],
+    "library": ["_canola/lua"]
   },
   "type": {
     "checkTableShape": true
