@@ -32,6 +32,7 @@ canola-ssh                                                        *canola-ssh*
     vim.g.canola_ssh = {
       extra_args = {},
       border = nil,
+      recursive = false,
       hosts = {
         -- ["nas.local"] = { extra_args = { "-O" } },
       },
@@ -40,6 +41,9 @@ canola-ssh                                                        *canola-ssh*
   extra_args    Extra arguments appended to scp commands.
   border        Border for the SSH terminal window. When nil, inherits
                 the global `border` from `vim.g.canola`.
+  recursive     When true, allow deleting directories. When false (default),
+                directory deletes return an error. Overrides
+                `vim.g.canola.delete.recursive` for this adapter.
   hosts         Per-host overrides. Keys are hostnames as they appear in
                 the URL. Each entry supports `extra_args` which is
                 appended after the global `extra_args`.
@@ -52,12 +56,16 @@ canola-s3                                                          *canola-s3*
   >lua
     vim.g.canola_s3 = {
       extra_args = {},
+      recursive = false,
       buckets = {
         -- ["my-r2"] = { extra_args = { "--endpoint-url", "..." } },
       },
     }
 <
   extra_args    Extra arguments appended to `aws s3` commands.
+  recursive     When true, allow deleting prefixes and buckets. When false
+                (default), directory deletes return an error. Overrides
+                `vim.g.canola.delete.recursive` for this adapter.
   buckets       Per-bucket overrides. Keys are bucket names. Each entry
                 supports `extra_args` appended after the global value.
 
@@ -69,12 +77,16 @@ canola-ftp                                                        *canola-ftp*
   >lua
     vim.g.canola_ftp = {
       extra_args = {},
+      recursive = false,
       hosts = {
         -- ["ftp.internal.com"] = { extra_args = { "--insecure" } },
       },
     }
 <
   extra_args    Extra arguments appended to curl commands.
+  recursive     When true, allow deleting directories. When false (default),
+                directory deletes return an error. Overrides
+                `vim.g.canola.delete.recursive` for this adapter.
   hosts         Per-host overrides. Keys are hostnames as they appear in
                 the URL. Each entry supports `extra_args` appended after
                 the global value.

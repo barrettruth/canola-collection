@@ -348,6 +348,18 @@ M.perform_action = function(action, cb)
   elseif action.type == 'delete' then
     local res = M.parse_url(action.url)
     local conn = get_connection(action.url)
+    if action.entry_type == 'directory' then
+      local cfg = vim.g.canola_ssh or {}
+      local recursive = cfg.recursive
+      if recursive == nil then
+        recursive = ((vim.g.canola or {}).delete or {}).recursive
+      end
+      if not recursive then
+        return cb(
+          'Recursive delete is disabled. Set `recursive = true` in `vim.g.canola_ssh` or `vim.g.canola.delete` to allow deleting directories over SSH.'
+        )
+      end
+    end
     conn:rm(res.path, cb)
   elseif action.type == 'move' then
     local src_adapter = assert(config.get_adapter_by_scheme(action.src_url))
