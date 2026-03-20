@@ -11,13 +11,13 @@ local M = {}
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
----@class (exact) oil.s3Url
+---@class (exact) canola.s3Url
 ---@field scheme string
 ---@field bucket nil|string
 ---@field path nil|string
 
 ---@param oil_url string
----@return oil.s3Url
+---@return canola.s3Url
 M.parse_url = function(oil_url)
   local scheme, url = util.parse_url(oil_url)
   assert(scheme and url, string.format("Malformed input url '%s'", oil_url))
@@ -28,11 +28,11 @@ M.parse_url = function(oil_url)
   if not ret.bucket and ret.path then
     error(string.format('Parsing error for s3 url: %s', oil_url))
   end
-  ---@cast ret oil.s3Url
+  ---@cast ret canola.s3Url
   return ret
 end
 
----@param url oil.s3Url
+---@param url canola.s3Url
 ---@return string
 local function url_to_str(url)
   local pieces = { url.scheme }
@@ -48,7 +48,7 @@ local function url_to_str(url)
   return table.concat(pieces, '')
 end
 
----@param url oil.s3Url
+---@param url canola.s3Url
 ---@param is_folder boolean
 ---@return string
 local function url_to_s3(url, is_folder)
@@ -68,7 +68,7 @@ local function url_to_s3(url, is_folder)
   return table.concat(pieces, '')
 end
 
----@param url oil.s3Url
+---@param url canola.s3Url
 ---@return boolean
 local function is_bucket(url)
   assert(url.bucket and url.bucket ~= '')
