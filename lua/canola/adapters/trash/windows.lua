@@ -308,13 +308,14 @@ M.render_action = function(action)
 end
 
 ---@param trash_info canola.WindowsTrashInfo
+---@param entry_type string
 ---@param cb fun(err?: string, raw_entries: canola.WindowsRawEntry[]?)
-local purge = function(trash_info, cb)
+local purge = function(trash_info, entry_type, cb)
   fs.recursive_delete('file', trash_info.info_file, function(err)
     if err then
       return cb(err)
     end
-    fs.recursive_delete('file', trash_info.trash_file, cb)
+    fs.recursive_delete(entry_type, trash_info.trash_file, cb)
   end)
 end
 
@@ -352,7 +353,7 @@ M.perform_action = function(action, cb)
     local meta = entry[FIELD_META] --[[@as {stat: uv_fs_t, trash_info: canola.WindowsTrashInfo, display_name: string}]]
     local trash_info = meta and meta.trash_info
 
-    purge(trash_info, cb)
+    purge(trash_info, action.entry_type, cb)
   elseif action.type == 'move' then
     local src_adapter = assert(config.get_adapter_by_scheme(action.src_url))
     local dest_adapter = assert(config.get_adapter_by_scheme(action.dest_url))
