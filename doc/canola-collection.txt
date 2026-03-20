@@ -37,7 +37,7 @@ canola-ssh                                                        *canola-ssh*
 <
   extra_args    Extra arguments appended to scp commands.
   border        Border for the SSH terminal window. When nil, inherits
-                the global `border` from |vim.g.canola|.
+                the global `border` from `vim.g.canola`.
   hosts         Per-host overrides. Keys are hostnames as they appear in
                 the URL. Each entry supports `extra_args` which is
                 appended after the global `extra_args`.
@@ -82,7 +82,7 @@ canola-trash                                                    *canola-trash*
   macOS, and Windows.
   Scheme: `canola-trash://path`
 
-  Enable by setting `delete_to_trash = true` in |vim.g.canola|.
+  Enable by setting `delete_to_trash = true` in `vim.g.canola`.
   No adapter-specific configuration.
 
 ==============================================================================
