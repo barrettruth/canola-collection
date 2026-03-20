@@ -70,6 +70,7 @@ jobs:
         with:
           path: lua
           luals-version: 3.16.4
+          libraries: ${{ github.workspace }}/_canola/lua
 
   vimdoc-check:
     name: Vimdoc Check
