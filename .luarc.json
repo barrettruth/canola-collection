@@ -5,7 +5,11 @@
   },
   "workspace": {
     "checkThirdParty": false,
-    "ignoreDir": [".direnv"]
+    "ignoreDir": [".direnv"],
+    "library": ["${3rd}/busted/library"]
+  },
+  "diagnostics": {
+    "globals": ["vim"]
   },
   "type": {
     "checkTableShape": true
