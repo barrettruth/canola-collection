@@ -14,7 +14,7 @@ local FIELD_NAME = constants.FIELD_NAME
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
----@class (exact) oil.sshUrl
+---@class (exact) canola.sshUrl
 ---@field scheme string
 ---@field host string
 ---@field user nil|string
@@ -43,7 +43,7 @@ local function scp(hosts, args, ...)
 end
 
 ---@param oil_url string
----@return oil.sshUrl
+---@return canola.sshUrl
 M.parse_url = function(oil_url)
   local scheme, url = util.parse_url(oil_url)
   assert(scheme and url, string.format("Malformed input url '%s'", oil_url))
@@ -65,11 +65,11 @@ M.parse_url = function(oil_url)
     error(string.format('Malformed SSH url: %s', oil_url))
   end
 
-  ---@cast ret oil.sshUrl
+  ---@cast ret canola.sshUrl
   return ret
 end
 
----@param url oil.sshUrl
+---@param url canola.sshUrl
 ---@return string
 local function url_to_str(url)
   local pieces = { url.scheme }
@@ -86,7 +86,7 @@ local function url_to_str(url)
   return table.concat(pieces, '')
 end
 
----@param url oil.sshUrl
+---@param url canola.sshUrl
 ---@return string
 local function url_to_scp(url)
   local pieces = { 'scp://' }
@@ -104,8 +104,8 @@ local function url_to_scp(url)
   return table.concat(pieces, '')
 end
 
----@param url1 oil.sshUrl
----@param url2 oil.sshUrl
+---@param url1 canola.sshUrl
+---@param url2 canola.sshUrl
 ---@return boolean
 local function url_hosts_equal(url1, url2)
   return url1.host == url2.host and url1.port == url2.port and url1.user == url2.user
@@ -114,7 +114,7 @@ end
 local _connections = {}
 ---@param url string
 ---@param allow_retry nil|boolean
----@return oil.sshFs
+---@return canola.sshFs
 local function get_connection(url, allow_retry)
   local res = M.parse_url(url)
   res.scheme = config.adapter_to_scheme.ssh

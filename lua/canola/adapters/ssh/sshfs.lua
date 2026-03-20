@@ -4,9 +4,9 @@ local constants = require('canola.constants')
 local permissions = require('canola.adapters.files.permissions')
 local util = require('canola.util')
 
----@class (exact) oil.sshFs
----@field new fun(url: oil.sshUrl): oil.sshFs
----@field conn oil.sshConnection
+---@class (exact) canola.sshFs
+---@field new fun(url: canola.sshUrl): canola.sshFs
+---@field conn canola.sshConnection
 local SSHFS = {}
 
 local FIELD_TYPE = constants.FIELD_TYPE
@@ -74,10 +74,10 @@ local function shellescape(str)
   return "'" .. str:gsub("'", "'\\''") .. "'"
 end
 
----@param url oil.sshUrl
----@return oil.sshFs
+---@param url canola.sshUrl
+---@return canola.sshFs
 function SSHFS.new(url)
-  ---@type oil.sshFs
+  ---@type canola.sshFs
   return setmetatable({
     conn = SSHConnection.new(url),
   }, {

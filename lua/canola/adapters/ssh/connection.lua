@@ -2,21 +2,21 @@ local config = require('canola.config')
 local layout = require('canola.layout')
 local util = require('canola.util')
 
----@class (exact) oil.sshCommand
+---@class (exact) canola.sshCommand
 ---@field cmd string|string[]
 ---@field cb fun(err?: string, output?: string[])
 ---@field running? boolean
 
----@class (exact) oil.sshConnection
----@field new fun(url: oil.sshUrl): oil.sshConnection
----@field create_ssh_command fun(url: oil.sshUrl): string[]
+---@class (exact) canola.sshConnection
+---@field new fun(url: canola.sshUrl): canola.sshConnection
+---@field create_ssh_command fun(url: canola.sshUrl): string[]
 ---@field meta {user?: string, groups?: string[]}
 ---@field connection_error nil|string
 ---@field connected boolean
 ---@field private term_bufnr integer
 ---@field private jid integer
 ---@field private term_winid nil|integer
----@field private commands oil.sshCommand[]
+---@field private commands canola.sshCommand[]
 ---@field private _stdout string[]
 local SSHConnection = {}
 
@@ -61,7 +61,7 @@ local function get_last_lines(bufnr, num_lines)
   return lines
 end
 
----@param url oil.sshUrl
+---@param url canola.sshUrl
 ---@return string[]
 function SSHConnection.create_ssh_command(url)
   local host = url.host
@@ -79,8 +79,8 @@ function SSHConnection.create_ssh_command(url)
   return command
 end
 
----@param url oil.sshUrl
----@return oil.sshConnection
+---@param url canola.sshUrl
+---@return canola.sshConnection
 function SSHConnection.new(url)
   local command = SSHConnection.create_ssh_command(url)
   vim.list_extend(command, {
@@ -176,7 +176,7 @@ function SSHConnection.new(url)
     end
   end)
 
-  ---@cast self oil.sshConnection
+  ---@cast self canola.sshConnection
   return self
 end
 

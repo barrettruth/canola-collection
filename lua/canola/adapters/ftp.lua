@@ -14,7 +14,7 @@ local uv = vim.uv or vim.loop
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
----@class (exact) oil.ftpUrl
+---@class (exact) canola.ftpUrl
 ---@field scheme string
 ---@field host string
 ---@field user nil|string
@@ -23,7 +23,7 @@ local FIELD_META = constants.FIELD_META
 ---@field path string
 
 ---@param oil_url string
----@return oil.ftpUrl
+---@return canola.ftpUrl
 M.parse_url = function(oil_url)
   local scheme, url = util.parse_url(oil_url)
   assert(scheme and url, string.format("Malformed input url '%s'", oil_url))
@@ -52,11 +52,11 @@ M.parse_url = function(oil_url)
   if not ret.host or not ret.path then
     error(string.format('Malformed FTP url: %s', oil_url))
   end
-  ---@cast ret oil.ftpUrl
+  ---@cast ret canola.ftpUrl
   return ret
 end
 
----@param url oil.ftpUrl
+---@param url canola.ftpUrl
 ---@return string
 local function url_to_str(url)
   local pieces = { url.scheme }
@@ -87,7 +87,7 @@ local function url_encode_path(s)
   )
 end
 
----@param url oil.ftpUrl
+---@param url canola.ftpUrl
 ---@return string
 local function curl_ftp_url(url)
   local pieces = { 'ftp://' }
@@ -121,7 +121,7 @@ local function resolved_curl_args(host)
   return extra
 end
 
----@param url oil.ftpUrl
+---@param url canola.ftpUrl
 ---@param py_lines string[]
 ---@param cb fun(err: nil|string)
 local function ftpcmd(url, py_lines, cb)
@@ -165,7 +165,7 @@ local function ftpcmd(url, py_lines, cb)
   end)
 end
 
----@param url oil.ftpUrl
+---@param url canola.ftpUrl
 ---@return string[]
 local function ssl_args(url)
   if url.scheme == 'canola-ftps://' then
@@ -174,7 +174,7 @@ local function ssl_args(url)
   return {}
 end
 
----@param url oil.ftpUrl
+---@param url canola.ftpUrl
 ---@param extra_args string[]
 ---@param opts table|fun(err: nil|string, output: nil|string[])
 ---@param cb? fun(err: nil|string, output: nil|string[])
@@ -190,14 +190,14 @@ local function curl(url, extra_args, opts, cb)
   shell.run(cmd, opts, cb)
 end
 
----@param url oil.ftpUrl
+---@param url canola.ftpUrl
 ---@return string
 local function ftp_abs_path(url)
   return '/' .. url.path
 end
 
----@param url1 oil.ftpUrl
----@param url2 oil.ftpUrl
+---@param url1 canola.ftpUrl
+---@param url2 canola.ftpUrl
 ---@return boolean
 local function url_hosts_equal(url1, url2)
   return url1.host == url2.host and url1.port == url2.port and url1.user == url2.user
@@ -523,8 +523,8 @@ M.render_action = function(action)
   end
 end
 
----@param src_res oil.ftpUrl
----@param dest_res oil.ftpUrl
+---@param src_res canola.ftpUrl
+---@param dest_res canola.ftpUrl
 ---@param cb fun(err: nil|string)
 local function ftp_copy_file(src_res, dest_res, cb)
   local cache_dir = vim.fn.stdpath('cache')
