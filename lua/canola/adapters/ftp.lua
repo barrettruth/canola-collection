@@ -9,6 +9,8 @@ local shell = require('canola.shell')
 local util = require('canola.util')
 local M = {}
 
+local uv = vim.uv or vim.loop
+
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
@@ -529,17 +531,17 @@ local function ftp_copy_file(src_res, dest_res, cb)
   assert(type(cache_dir) == 'string')
   local tmpdir = fs.join(cache_dir, 'canola')
   fs.mkdirp(tmpdir)
-  local fd, tmpfile = vim.loop.fs_mkstemp(fs.join(tmpdir, 'ftp_XXXXXX'))
+  local fd, tmpfile = uv.fs_mkstemp(fs.join(tmpdir, 'ftp_XXXXXX'))
   if fd then
-    vim.loop.fs_close(fd)
+    uv.fs_close(fd)
   end
   curl(src_res, { curl_ftp_url(src_res), '-o', tmpfile }, function(err)
     if err then
-      vim.loop.fs_unlink(tmpfile)
+      uv.fs_unlink(tmpfile)
       return cb(err)
     end
     curl(dest_res, { '-T', tmpfile, curl_ftp_url(dest_res) }, function(err2)
-      vim.loop.fs_unlink(tmpfile)
+      uv.fs_unlink(tmpfile)
       cb(err2)
     end)
   end)
@@ -658,9 +660,9 @@ M.read_file = function(bufnr)
   assert(type(cache_dir) == 'string')
   local tmpdir = fs.join(cache_dir, 'canola')
   fs.mkdirp(tmpdir)
-  local fd, tmpfile = vim.loop.fs_mkstemp(fs.join(tmpdir, 'ftp_XXXXXX'))
+  local fd, tmpfile = uv.fs_mkstemp(fs.join(tmpdir, 'ftp_XXXXXX'))
   if fd then
-    vim.loop.fs_close(fd)
+    uv.fs_close(fd)
   end
   local tmp_bufnr = vim.fn.bufadd(tmpfile)
 
@@ -675,7 +677,7 @@ M.read_file = function(bufnr)
       vim.api.nvim_buf_call(bufnr, function()
         vim.cmd.read({ args = { tmpfile }, mods = { silent = true } })
       end)
-      vim.loop.fs_unlink(tmpfile)
+      uv.fs_unlink(tmpfile)
       vim.api.nvim_buf_set_lines(bufnr, 0, 1, true, {})
     end
     vim.bo[bufnr].modified = false
@@ -695,9 +697,9 @@ M.write_file = function(bufnr)
   local cache_dir = vim.fn.stdpath('cache')
   assert(type(cache_dir) == 'string')
   local tmpdir = fs.join(cache_dir, 'canola')
-  local fd, tmpfile = vim.loop.fs_mkstemp(fs.join(tmpdir, 'ftp_XXXXXXXX'))
+  local fd, tmpfile = uv.fs_mkstemp(fs.join(tmpdir, 'ftp_XXXXXXXX'))
   if fd then
-    vim.loop.fs_close(fd)
+    uv.fs_close(fd)
   end
   vim.cmd.doautocmd({ args = { 'BufWritePre', bufname }, mods = { silent = true } })
   vim.bo[bufnr].modifiable = false
@@ -712,7 +714,7 @@ M.write_file = function(bufnr)
       vim.bo[bufnr].modified = false
       vim.cmd.doautocmd({ args = { 'BufWritePost', bufname }, mods = { silent = true } })
     end
-    vim.loop.fs_unlink(tmpfile)
+    uv.fs_unlink(tmpfile)
     vim.api.nvim_buf_delete(tmp_bufnr, { force = true })
   end)
 end
