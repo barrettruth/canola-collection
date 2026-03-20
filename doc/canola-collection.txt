@@ -16,7 +16,7 @@ OVERVIEW                                                   *canola-collection*
 
 canola-collection provides optional adapters and extensions for canola.nvim.
 All adapters are lazy-loaded and only activate when their URL scheme is first
-accessed.
+accessed. Adapter-specific configuration uses per-adapter `vim.g` tables.
 
 ==============================================================================
 ADAPTERS                                          *canola-collection-adapters*
@@ -25,29 +25,65 @@ canola-ssh                                                        *canola-ssh*
   Browse remote filesystems via SSH. Uses SCP for file transfers.
   Scheme: `canola-ssh://[user@]host[:port]/path`
 
-  Per-host configuration via `ssh_hosts` and `extra_scp_args` in
-  `vim.g.canola`.
+  Configuration:                                           *vim.g.canola_ssh*
+  >lua
+    vim.g.canola_ssh = {
+      extra_args = {},
+      border = nil,
+      hosts = {
+        -- ["nas.local"] = { extra_args = { "-O" } },
+      },
+    }
+<
+  extra_args    Extra arguments appended to scp commands.
+  border        Border for the SSH terminal window. When nil, inherits
+                the global `border` from |vim.g.canola|.
+  hosts         Per-host overrides. Keys are hostnames as they appear in
+                the URL. Each entry supports `extra_args` which is
+                appended after the global `extra_args`.
 
 canola-s3                                                          *canola-s3*
   Browse AWS S3 buckets via the `aws` CLI.
   Scheme: `canola-s3://bucket/prefix`
 
-  Per-bucket configuration via `s3_buckets` and `extra_s3_args` in
-  `vim.g.canola`.
+  Configuration:                                            *vim.g.canola_s3*
+  >lua
+    vim.g.canola_s3 = {
+      extra_args = {},
+      buckets = {
+        -- ["my-r2"] = { extra_args = { "--endpoint-url", "..." } },
+      },
+    }
+<
+  extra_args    Extra arguments appended to `aws s3` commands.
+  buckets       Per-bucket overrides. Keys are bucket names. Each entry
+                supports `extra_args` appended after the global value.
 
 canola-ftp                                                        *canola-ftp*
   Browse FTP/FTPS servers via `curl`.
   Scheme: `canola-ftp://host/path` or `canola-ftps://host/path`
 
-  Per-host configuration via `ftp_hosts` and `extra_curl_args` in
-  `vim.g.canola`.
+  Configuration:                                           *vim.g.canola_ftp*
+  >lua
+    vim.g.canola_ftp = {
+      extra_args = {},
+      hosts = {
+        -- ["ftp.internal.com"] = { extra_args = { "--insecure" } },
+      },
+    }
+<
+  extra_args    Extra arguments appended to curl commands.
+  hosts         Per-host overrides. Keys are hostnames as they appear in
+                the URL. Each entry supports `extra_args` appended after
+                the global value.
 
 canola-trash                                                    *canola-trash*
   OS-specific trash/recycle bin integration. Supports freedesktop (Linux),
   macOS, and Windows.
   Scheme: `canola-trash://path`
 
-  Used automatically when `delete_to_trash = true` in `vim.g.canola`.
+  Enable by setting `delete_to_trash = true` in |vim.g.canola|.
+  No adapter-specific configuration.
 
 ==============================================================================
 EXTENSIONS                                      *canola-collection-extensions*
@@ -65,17 +101,6 @@ Requires canola.nvim as a dependency. Install with your package manager: >lua
   {
     'barrettruth/canola-collection',
     dependencies = { 'barrettruth/canola.nvim' },
-  }
-<
-Adapter-specific configuration lives in `vim.g.canola`: >lua
-
-  vim.g.canola = {
-    extra_scp_args = {},
-    extra_s3_args = {},
-    extra_curl_args = {},
-    ssh_hosts = {},
-    s3_buckets = {},
-    ftp_hosts = {},
   }
 <
 

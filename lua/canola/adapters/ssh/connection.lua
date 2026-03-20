@@ -280,7 +280,7 @@ function SSHConnection:open_terminal()
     row = row,
     col = col,
     style = 'minimal',
-    border = config.ssh.border,
+    border = (vim.g.canola_ssh or {}).border or config.border,
   })
   vim.cmd.startinsert()
 end
@@ -306,7 +306,9 @@ function SSHConnection:_consume()
         -- HACK: Sleep briefly to help reduce stderr/stdout interleaving.
         -- I want to find a way to flush the stderr before the echo DONE, but haven't yet.
         -- This was causing issues when ls directory that doesn't exist (b/c ls prints error)
-        'echo "===BEGIN==="; ' .. cmd.cmd .. '; CODE=$?; sleep .01; echo "===DONE($CODE)==="\r'
+        'echo "===BEGIN==="; '
+          .. cmd.cmd
+          .. '; CODE=$?; sleep .01; echo "===DONE($CODE)==="\r'
       )
     end
   end
