@@ -106,7 +106,7 @@ M.list = function(url, column_defs, cb)
             display_name = entry.Name,
           }
         end
-        if path ~= parent and (show_all_files or fs.is_subpath(path, parent)) then
+        if path ~= parent and not show_all_files and fs.is_subpath(path, parent) then
           local name = parent:sub(path:len() + 1)
           local next_par = vim.fs.dirname(name)
           while next_par ~= '.' do

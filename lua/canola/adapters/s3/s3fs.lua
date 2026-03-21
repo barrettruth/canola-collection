@@ -119,9 +119,14 @@ end
 
 --- Remove bucket
 ---@param bucket string
+---@param force boolean
 ---@param callback fun(err: nil|string)
-function M.rb(bucket, callback)
-  local cmd = create_s3_command({ 'rb', bucket })
+function M.rb(bucket, force, callback)
+  local main_cmd = { 'rb', bucket }
+  if force then
+    table.insert(main_cmd, '--force')
+  end
+  local cmd = create_s3_command(main_cmd)
   shell.run(cmd, callback)
 end
 
