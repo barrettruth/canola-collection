@@ -69,6 +69,10 @@ local function populate_cache(dir)
   if pending[dir] then
     return
   end
+  if not vim.uv.fs_stat(dir) then
+    M._cache[dir] = false
+    return
+  end
   pending[dir] = true
 
   local git = require('canola.git')
