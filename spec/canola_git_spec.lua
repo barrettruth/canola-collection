@@ -1,4 +1,5 @@
 local canola_git
+local original_schedule
 
 local function make_canola_mock(dir)
   return {
@@ -23,16 +24,26 @@ local function make_view_mock()
   }
 end
 
+local function make_columns_mock()
+  return {
+    register = function(_name, _def) end,
+  }
+end
+
 local function inject_mocks(canola_mock, git_mock, view_mock)
   package.loaded['canola'] = canola_mock
   package.loaded['canola.git'] = git_mock
   package.loaded['canola.view'] = view_mock
+  package.loaded['canola.columns'] = make_columns_mock()
+  package.loaded['canola.constants'] = { FIELD_NAME = 2 }
 end
 
 local function clear_mocks()
   package.loaded['canola'] = nil
   package.loaded['canola.git'] = nil
   package.loaded['canola.view'] = nil
+  package.loaded['canola.columns'] = nil
+  package.loaded['canola.constants'] = nil
   package.loaded['canola-git'] = nil
   vim.g.canola_git = nil
 end
@@ -40,10 +51,15 @@ end
 describe('canola-git', function()
   before_each(function()
     clear_mocks()
+    original_schedule = vim.schedule
+    vim.schedule = function(fn)
+      fn()
+    end
   end)
 
   after_each(function()
     clear_mocks()
+    vim.schedule = original_schedule
   end)
 
   describe('setup()', function()

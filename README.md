@@ -1,6 +1,7 @@
 # canola-collection
 
-Optional adapters and extensions for [canola.nvim](https://github.com/barrettruth/canola.nvim).
+Optional adapters and extensions for
+[canola.nvim](https://github.com/barrettruth/canola.nvim).
 
 ## Adapters
 
@@ -27,7 +28,8 @@ Install with your package manager of choice or via
 luarocks install canola-collection
 ```
 
-Requires [canola.nvim](https://github.com/barrettruth/canola.nvim) as a dependency:
+Requires [canola.nvim](https://github.com/barrettruth/canola.nvim) as a
+dependency:
 
 ```lua
 {
