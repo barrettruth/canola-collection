@@ -62,7 +62,7 @@ describe('canola-git', function()
     vim.schedule = original_schedule
   end)
 
-  describe('setup()', function()
+  describe('_init()', function()
     it('registers is_hidden_file override', function()
       local registered_fn = nil
       local canola_mock = make_canola_mock(nil)
@@ -71,24 +71,11 @@ describe('canola-git', function()
       end
       inject_mocks(canola_mock, make_git_mock(nil), make_view_mock())
       canola_git = require('canola-git')
-      canola_git.setup()
+      canola_git._init()
       assert.is_function(registered_fn)
     end)
 
-    it('is idempotent when called twice', function()
-      local call_count = 0
-      local canola_mock = make_canola_mock(nil)
-      canola_mock.set_is_hidden_file = function(_fn)
-        call_count = call_count + 1
-      end
-      inject_mocks(canola_mock, make_git_mock(nil), make_view_mock())
-      canola_git = require('canola-git')
-      canola_git.setup()
-      canola_git.setup()
-      assert.equals(1, call_count)
-    end)
-
-    it('skips registration when enabled = false', function()
+    it('skips is_hidden_file when enabled = false', function()
       vim.g.canola_git = { enabled = false }
       local call_count = 0
       local canola_mock = make_canola_mock(nil)
@@ -97,7 +84,7 @@ describe('canola-git', function()
       end
       inject_mocks(canola_mock, make_git_mock(nil), make_view_mock())
       canola_git = require('canola-git')
-      canola_git.setup()
+      canola_git._init()
       assert.equals(0, call_count)
     end)
   end)
@@ -112,7 +99,7 @@ describe('canola-git', function()
       end
       inject_mocks(canola_mock, make_git_mock(nil), make_view_mock())
       canola_git = require('canola-git')
-      canola_git.setup()
+      canola_git._init()
     end)
 
     it('hides dotfiles by default before cache is populated', function()
@@ -134,7 +121,7 @@ describe('canola-git', function()
       end
       inject_mocks(canola_mock, make_git_mock(nil), make_view_mock())
       canola_git = require('canola-git')
-      canola_git.setup()
+      canola_git._init()
     end)
 
     it('hides dotfiles when get_current_dir returns nil', function()
@@ -157,7 +144,7 @@ describe('canola-git', function()
       end
       inject_mocks(canola_mock, make_git_mock('/repo'), make_view_mock())
       canola_git = require('canola-git')
-      canola_git.setup()
+      canola_git._init()
     end)
 
     it('shows tracked dotfiles', function()

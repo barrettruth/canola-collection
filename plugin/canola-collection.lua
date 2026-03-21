@@ -13,6 +13,8 @@ if vim.fn.has('nvim-0.12') == 0 then
   canola.register_adapter('canola-sss://', 's3')
 end
 
+require('canola-git')._init()
+
 vim.api.nvim_create_autocmd('BufNew', {
   pattern = 'scp://*',
   once = true,
