@@ -239,11 +239,24 @@ M.perform_action = function(action, cb)
   elseif action.type == 'delete' then
     local res = M.parse_url(action.url)
     local bucket = is_bucket(res)
-
-    if action.entry_type == 'directory' and bucket then
-      s3fs.rb(url_to_s3(res, true), cb)
-    elseif action.entry_type == 'directory' or action.entry_type == 'file' then
-      s3fs.rm(url_to_s3(res, is_folder), is_folder, cb)
+    if action.entry_type == 'directory' then
+      local cfg = vim.g.canola_s3 or {}
+      local recursive = cfg.recursive
+      if recursive == nil then
+        recursive = ((vim.g.canola or {}).delete or {}).recursive
+      end
+      if not recursive then
+        return cb(
+          'Recursive delete is disabled. Set `recursive = true` in `vim.g.canola_s3` or `vim.g.canola.delete` to allow deleting S3 prefixes and buckets.'
+        )
+      end
+      if bucket then
+        s3fs.rb(url_to_s3(res, true), true, cb)
+      else
+        s3fs.rm(url_to_s3(res, is_folder), is_folder, cb)
+      end
+    elseif action.entry_type == 'file' then
+      s3fs.rm(url_to_s3(res, false), false, cb)
     else
       cb(string.format('Bad entry type on s3 delete action: %s', action.entry_type))
     end

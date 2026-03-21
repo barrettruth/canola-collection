@@ -564,6 +564,16 @@ M.perform_action = function(action, cb)
     local res = M.parse_url(action.url)
     local ftp_path = ftp_abs_path(res)
     if action.entry_type == 'directory' then
+      local cfg = vim.g.canola_ftp or {}
+      local recursive = cfg.recursive
+      if recursive == nil then
+        recursive = ((vim.g.canola or {}).delete or {}).recursive
+      end
+      if not recursive then
+        return cb(
+          'Recursive delete is disabled. Set `recursive = true` in `vim.g.canola_ftp` or `vim.g.canola.delete` to allow deleting FTP directories.'
+        )
+      end
       ftpcmd(res, {
         'def rmtree(f, p):',
         '  try:',

@@ -1,7 +1,6 @@
 # canola-collection
 
-Optional adapters and extensions for
-[canola.nvim](https://github.com/barrettruth/canola.nvim).
+Optional adapters and extensions for [canola.nvim](https://github.com/barrettruth/canola.nvim).
 
 ## Adapters
 
@@ -11,20 +10,24 @@ Optional adapters and extensions for
 | canola-s3    | `canola-s3://`                    | AWS S3 via `aws` CLI            |
 | canola-ftp   | `canola-ftp://`, `canola-ftps://` | FTP/FTPS via `curl`             |
 | canola-trash | `canola-trash://`                 | OS-specific recycle bin         |
-| canola-git   | n/a                               | Git status decoration (planned) |
 
 ## Extensions
 
 | Plugin           | Description                        |
 | ---------------- | ---------------------------------- |
 | canola-resession | Session restore via resession.nvim |
+| canola-git       | Git-aware hidden file filtering    |
 
 ## Installation
 
-Requires [canola.nvim](https://github.com/barrettruth/canola.nvim) as a
-dependency.
+Install with your package manager of choice or via
+[luarocks](https://luarocks.org/modules/barrettruth/canola-collection):
 
-### lazy.nvim
+```
+luarocks install canola-collection
+```
+
+Requires [canola.nvim](https://github.com/barrettruth/canola.nvim) as a dependency:
 
 ```lua
 {
@@ -33,22 +36,8 @@ dependency.
 }
 ```
 
-All adapters are lazy-loaded — they only activate when their URL scheme is first
-accessed. No adapter code runs at startup.
+## Documentation
 
-## Configuration
-
-Adapter-specific configuration lives in `vim.g.canola` alongside core settings:
-
-```lua
-vim.g.canola = {
-  extra_scp_args = {},
-  extra_s3_args = {},
-  extra_curl_args = {},
-  ssh_hosts = {},
-  s3_buckets = {},
-  ftp_hosts = {},
-}
+```vim
+:help canola-collection
 ```
-
-See `:help canola-collection` for full documentation.
