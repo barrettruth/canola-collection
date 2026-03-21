@@ -2,7 +2,6 @@ local M = {}
 
 M._cache = {}
 local pending = {}
-local registered = false
 
 local STAT_HL = {
   ['?'] = 'DiagnosticHint',
@@ -187,12 +186,7 @@ local function is_hidden(name, bufnr)
   return false
 end
 
-M.setup = function()
-  if registered then
-    return
-  end
-  registered = true
-
+M._init = function()
   require('canola.columns').register('git_status', {
     render = function(entry, conf, bufnr)
       local name = entry[require('canola.constants').FIELD_NAME]
@@ -212,9 +206,6 @@ M.setup = function()
       local c = xy:sub(1, 1) ~= ' ' and xy:sub(1, 1) or xy:sub(2, 2)
       return { text, STAT_HL[c] or 'Normal' }
     end,
-    parse = function(line, conf)
-      return line:match('^(%S+)%s+(.*)$')
-    end,
   })
 
   local cfg = get_config()
@@ -222,10 +213,8 @@ M.setup = function()
     return
   end
 
-  vim.schedule(function()
-    require('canola').set_is_hidden_file(function(name, bufnr, _entry)
-      return is_hidden(name, bufnr)
-    end)
+  require('canola').set_is_hidden_file(function(name, bufnr, _entry)
+    return is_hidden(name, bufnr)
   end)
 
   vim.api.nvim_create_autocmd('User', {
