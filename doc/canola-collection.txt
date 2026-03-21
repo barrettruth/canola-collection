@@ -173,24 +173,6 @@ canola-resession                                            *canola-resession*
     })
 <
 
-canola-git                                                        *canola-git*
-  Git-aware hidden file filtering. Replaces the default dotfile pattern with
-  git-aware logic: tracked dotfiles are shown, git-ignored non-dotfiles are
-  hidden. Falls back to dotfile matching outside of git repositories.
-
-  Setup:                                                    *canola-git-setup*
-  >lua
-    require('canola-git').setup()
-<
-
-  Configuration:                                           *vim.g.canola_git*
-  >lua
-    vim.g.canola_git = {
-      enabled = true,
-    }
-<
-  enabled    When false, `setup()` is a no-op. Default: true.
-
 ==============================================================================
 INSTALLATION                                       *canola-collection-install*
 
