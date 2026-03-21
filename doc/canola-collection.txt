@@ -182,6 +182,73 @@ canola-git                                                        *canola-git*
     })
 <
 
+  Status API ~
+                                              *canola-git.get_status()*
+  >lua
+    require('canola-git').get_status(dir, name)
+<
+  Returns a table for the given entry, or `nil` if there is no status:
+  >lua
+    {
+      status = "M ",     -- raw two-character porcelain (index + worktree)
+      char   = "M",      -- resolved single character (index if set, else worktree)
+      hl     = "DiagnosticWarn",  -- highlight group
+    }
+<
+  `dir` is the directory path (from `get_current_dir()`). `name` is the
+  entry name (filename or subdirectory).
+
+  Example — git status in the sign column: >lua
+    local ns = vim.api.nvim_create_namespace('canola_git_signs')
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'CanolaReadPost',
+      callback = function(args)
+        local bufnr = args.data.buf
+        local canola = require('canola')
+        local cg = require('canola-git')
+        local dir = canola.get_current_dir(bufnr)
+        if not dir then
+          return
+        end
+        vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+        for lnum = 1, args.data.entry_count do
+          local entry = canola.get_entry_on_line(bufnr, lnum)
+          if entry then
+            local st = cg.get_status(dir, entry.name)
+            if st then
+              vim.api.nvim_buf_set_extmark(bufnr, ns, lnum - 1, 0, {
+                sign_text = st.char,
+                sign_hl_group = st.hl,
+              })
+            end
+          end
+        end
+      end,
+    })
+<
+  Example — git status in the status column: >lua
+    function _G.canola_git_statuscolumn()
+      local bufnr = vim.api.nvim_get_current_buf()
+      local entry = require('canola').get_entry_on_line(bufnr, vim.v.lnum)
+      if not entry then
+        return ' '
+      end
+      local dir = require('canola').get_current_dir(bufnr)
+      if not dir then
+        return ' '
+      end
+      local st = require('canola-git').get_status(dir, entry.name)
+      if not st then
+        return ' '
+      end
+      return '%#' .. st.hl .. '#' .. st.char .. '%*'
+    end
+
+    vim.g.canola = {
+      win = { statuscolumn = '%!v:lua.canola_git_statuscolumn()' },
+    }
+<
+
   Hidden file fallback ~
   In directories that are not inside a git repository, canola-git falls back
   to the default dotfile rule (hide names starting with `.`).
