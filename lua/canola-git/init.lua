@@ -18,8 +18,8 @@ local STAT_HL = {
 local function get_config()
   return vim.tbl_deep_extend('keep', vim.g.canola_git or {}, {
     enabled = true,
-    show    = { untracked = true, ignored = false },
-    format  = 'compact',
+    show = { untracked = true, ignored = false },
+    format = 'compact',
   })
 end
 
@@ -39,10 +39,14 @@ local function needs_status_column()
 end
 
 local function format_status(xy, fmt)
-  if not xy then return nil end
+  if not xy then
+    return nil
+  end
   local x, y = xy:sub(1, 1), xy:sub(2, 2)
   local c = x ~= ' ' and x or y
-  if c == ' ' then return nil end
+  if c == ' ' then
+    return nil
+  end
   if fmt == 'porcelain' then
     return xy
   elseif fmt == 'symbol' then
@@ -193,12 +197,18 @@ M.setup = function()
     render = function(entry, conf, bufnr)
       local name = entry[require('canola.constants').FIELD_NAME]
       local dir = require('canola').get_current_dir(bufnr)
-      if not dir then return nil end
+      if not dir then
+        return nil
+      end
       local cache = M._cache[dir]
-      if not cache or cache == false or not cache.status then return nil end
+      if not cache or cache == false or not cache.status then
+        return nil
+      end
       local xy = cache.status[name]
       local text = format_status(xy, get_config().format)
-      if not text then return nil end
+      if not text then
+        return nil
+      end
       local c = xy:sub(1, 1) ~= ' ' and xy:sub(1, 1) or xy:sub(2, 2)
       return { text, STAT_HL[c] or 'Normal' }
     end,
