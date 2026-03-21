@@ -254,7 +254,7 @@ M._init = function()
     end,
   })
 
-  vim.api.nvim_create_autocmd('FocusGained', {
+  vim.api.nvim_create_autocmd({ 'FocusGained', 'ShellCmdPost' }, {
     callback = function()
       M.invalidate()
     end,

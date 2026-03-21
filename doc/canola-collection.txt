@@ -164,8 +164,9 @@ canola-git                                                        *canola-git*
   Cache invalidation ~
   Git status is cached per directory. The cache is automatically refreshed
   on `CanolaMutationComplete` (after file operations via canola),
-  `FocusGained` (returning to nvim after external changes), and `BufEnter`
-  (re-entering a canola buffer). To trigger a manual refresh from a custom
+  `FocusGained` (returning to nvim after external changes), `BufEnter`
+  (re-entering a canola buffer), and `ShellCmdPost` (after `:!` shell
+  commands). To trigger a manual refresh from a custom
   event or keymap, call `invalidate()`:
                                               *canola-git.invalidate()*
   >lua
