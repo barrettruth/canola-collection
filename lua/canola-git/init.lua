@@ -202,6 +202,9 @@ M.setup = function()
       local c = xy:sub(1, 1) ~= ' ' and xy:sub(1, 1) or xy:sub(2, 2)
       return { text, STAT_HL[c] or 'Normal' }
     end,
+    parse = function(line, conf)
+      return line:match('^(%S+)%s+(.*)$')
+    end,
   })
 
   local cfg = get_config()
@@ -209,8 +212,10 @@ M.setup = function()
     return
   end
 
-  require('canola').set_is_hidden_file(function(name, bufnr, _entry)
-    return is_hidden(name, bufnr)
+  vim.schedule(function()
+    require('canola').set_is_hidden_file(function(name, bufnr, _entry)
+      return is_hidden(name, bufnr)
+    end)
   end)
 
   vim.api.nvim_create_autocmd('User', {
@@ -222,7 +227,9 @@ M.setup = function()
       if not dir then
         return
       end
-      M._cache[dir] = nil
+      if M._cache[dir] ~= nil then
+        return
+      end
       populate_cache(dir)
     end,
   })
