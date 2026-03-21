@@ -20,12 +20,26 @@ local function get_trash_dir()
   return trash_dir
 end
 
+---@return string
+local function get_info_dir()
+  local info_dir = fs.join(get_trash_dir(), '.canola-info')
+  touch_dir(info_dir)
+  return info_dir
+end
+
 ---@param url string
 ---@param callback fun(url: string)
 M.normalize_url = function(url, callback)
   local scheme, path = util.parse_url(url)
   assert(path)
-  callback(scheme .. '/')
+  local os_path = vim.fn.fnamemodify(fs.posix_to_os_path(path), ':p')
+  uv.fs_realpath(
+    os_path,
+    vim.schedule_wrap(function(_err, new_os_path)
+      local realpath = new_os_path or os_path
+      callback(scheme .. util.addslash(fs.os_to_posix_path(realpath)))
+    end)
+  )
 end
 
 ---@param url string
@@ -48,12 +62,11 @@ M.list = function(url, column_defs, cb)
   local _, path = util.parse_url(url)
   assert(path)
   local trash_dir = get_trash_dir()
+  local info_dir = get_info_dir()
   ---@diagnostic disable-next-line: param-type-mismatch, discard-returns
   uv.fs_opendir(trash_dir, function(open_err, fd)
     if open_err then
       if open_err:match('^ENOENT: no such file or directory') then
-        -- If the directory doesn't exist, treat the list as a success. We will be able to traverse
-        -- and edit a not-yet-existing directory.
         return cb()
       else
         return cb(open_err)
@@ -78,10 +91,39 @@ M.list = function(url, column_defs, cb)
           end)
 
           for _, entry in ipairs(entries) do
-            -- TODO: read .DS_Store and filter by original dir
-            local cache_entry = cache.create_entry(url, entry.name, entry.type)
-            table.insert(internal_entries, cache_entry)
+            if entry.name:match('%.trashinfo$') or entry.name == '.canola-info' then
+              poll()
+              goto continue
+            end
+
+            do
+              local sidecar = fs.join(info_dir, entry.name .. '.trashinfo')
+              local original_path = nil
+              local f = io.open(sidecar, 'r')
+              if f then
+                for line in f:lines() do
+                  local p = line:match('^Path=(.+)$')
+                  if p then
+                    original_path = p
+                    break
+                  end
+                end
+                f:close()
+              end
+
+              local show = (path == '/' or original_path == nil)
+              if not show and original_path then
+                local parent = util.addslash(vim.fn.fnamemodify(original_path, ':h'))
+                show = (fs.os_to_posix_path(parent) == path)
+              end
+
+              if show then
+                local cache_entry = cache.create_entry(url, entry.name, entry.type)
+                table.insert(internal_entries, cache_entry)
+              end
+            end
             poll()
+            ::continue::
           end
         else
           uv.fs_closedir(fd, function(close_err)
@@ -222,6 +264,17 @@ M.delete_to_trash = function(path, cb)
         end
         dest = fs.join(trash_dir, basename)
       end
+
+      local sidecar = fs.join(get_info_dir(), basename .. '.trashinfo')
+      local deletion_date = vim.fn.strftime('%Y-%m-%dT%H:%M:%S')
+      local contents = string.format('[Trash Info]\nPath=%s\nDeletionDate=%s', path, deletion_date)
+      uv.fs_open(sidecar, 'w', 448, function(open_err, fd)
+        if not open_err and fd then
+          uv.fs_write(fd, contents, function()
+            uv.fs_close(fd)
+          end)
+        end
+      end)
 
       local stat_type = src_stat.type
       fs.recursive_move(stat_type, path, dest, vim.schedule_wrap(cb))
