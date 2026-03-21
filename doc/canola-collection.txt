@@ -140,14 +140,26 @@ canola-git                                                        *canola-git*
 
   git_status column ~
   canola-git registers a `git_status` column that can be added to
-  `vim.g.canola.columns`. It shows the git status of each entry and is only
-  queried when the column is present in the columns list.
+  `vim.g.canola.columns`. Git status is always queried regardless of
+  whether the column is present, so it can be added or removed at runtime
+  via `set_columns()` without affecting hidden file behaviour.
   >lua
     vim.g.canola = {
       columns = { 'git_status', 'icon' },
     }
 <
   The column is a read-only display; it does not affect mutations.
+
+  For directories containing dirty files, the column shows the
+  highest-severity status among all children. Priority (highest first):
+  unmerged (`U`) > deleted (`D`) > modified (`M`) > renamed (`R`) >
+  added (`A`) > untracked (`?`) > ignored (`!`).
+
+  Tracked file detection ~
+  canola-git uses `git ls-files` (the full index) rather than
+  `git ls-tree HEAD` to determine which files are tracked. This means
+  staged-but-uncommitted files (e.g. after `git add`) are correctly
+  recognized as tracked.
 
   Cache invalidation ~
   Git status is cached per directory. The cache is automatically refreshed
