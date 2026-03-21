@@ -4,25 +4,18 @@ Optional adapters and extensions for
 [canola.nvim](https://github.com/barrettruth/canola.nvim). Install only what you
 need — canola core ships with the local filesystem adapter only.
 
+| Component                             | Description                            |
+| ------------------------------------- | -------------------------------------- |
+| [canola-git](#canola-git)             | Git-aware hiding + `git_status` column |
+| [canola-ssh](#canola-ssh)             | Remote filesystem via SSH + SCP        |
+| [canola-s3](#canola-s3)               | AWS S3 via `aws` CLI                   |
+| [canola-ftp](#canola-ftp)             | FTP/FTPS via `curl`                    |
+| [canola-trash](#canola-trash)         | OS-specific recycle bin                |
+| [canola-resession](#canola-resession) | Session restore via resession.nvim     |
+
 ## Installation
 
-Add `canola-collection` to your plugin manager alongside `canola.nvim`. It must
-load **after** canola:
-
-```lua
--- canola.nvim (required)
-vim.g.canola = {
-  columns = { 'git_status', 'icon' },
-}
-
--- canola-collection (load after canola)
-vim.g.canola_git = {
-  show = { untracked = true, ignored = false },
-  format = 'compact',
-}
-```
-
-Or install via
+Install with your package manager of choice or via
 [luarocks](https://luarocks.org/modules/barrettruth/canola-collection):
 
 ```
@@ -135,22 +128,6 @@ require('resession').setup({
   extensions = { canola = {} },
 })
 ```
-
-## Adapters
-
-| Adapter      | Scheme(s)                         | Description                     |
-| ------------ | --------------------------------- | ------------------------------- |
-| canola-ssh   | `canola-ssh://`                   | Remote filesystem via SSH + SCP |
-| canola-s3    | `canola-s3://`                    | AWS S3 via `aws` CLI            |
-| canola-ftp   | `canola-ftp://`, `canola-ftps://` | FTP/FTPS via `curl`             |
-| canola-trash | `canola-trash://`                 | OS-specific recycle bin         |
-
-## Extensions
-
-| Extension        | Description                            |
-| ---------------- | -------------------------------------- |
-| canola-git       | Git-aware hiding + `git_status` column |
-| canola-resession | Session restore via resession.nvim     |
 
 ## Documentation
 
