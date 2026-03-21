@@ -8,6 +8,11 @@ CONTENTS                                          *canola-collection-contents*
 
   Overview .......................... |canola-collection|
   Adapters .......................... |canola-collection-adapters|
+    canola-ssh ...................... |canola-ssh|
+    canola-s3 ....................... |canola-s3|
+    canola-ftp ...................... |canola-ftp|
+    canola-trash .................... |canola-trash|
+    canola-git ...................... |canola-git|
   Extensions ........................ |canola-collection-extensions|
   Installation ...................... |canola-collection-install|
 
@@ -84,6 +89,61 @@ canola-trash                                                    *canola-trash*
 
   Enable by setting `delete_to_trash = true` in `vim.g.canola`.
   No adapter-specific configuration.
+
+canola-git                                                        *canola-git*
+  Git-aware hidden file filtering for local directories. Replaces the default
+  dotfile filter with one that respects the git index: tracked dotfiles are
+  shown, untracked dotfiles and ignored files are hidden.
+
+  Call `require('canola-git').setup()` after `vim.g.canola_git` is set.
+
+  Configuration:                                           *vim.g.canola_git*
+  >lua
+    vim.g.canola_git = {
+      enabled = true,
+      show    = { untracked = true, ignored = false },
+      format  = 'compact',
+    }
+<
+  enabled       When `false`, disables all canola-git behaviour.
+
+  show.untracked  When `false`, untracked non-dotfiles (new files not yet
+                staged or committed) are hidden alongside ignored files.
+                Default: `true`.
+
+  show.ignored  When `true`, git-ignored files are shown instead of hidden.
+                Default: `false`.
+
+  format        Controls how the `git_status` column renders status codes.
+                `'compact'`  — single character: index status if set,
+                               otherwise worktree status (e.g. `M`, `A`,
+                               `D`, `?`).
+                `'porcelain'` — raw two-character porcelain code (e.g.
+                               `M `, ` M`, `??`).
+                `'symbol'`   — Unicode symbols: `●` modified, `+` added,
+                               `-` deleted, `»` renamed, `?` untracked,
+                               `!` ignored.
+                Default: `'compact'`.
+
+  git_status column ~
+  canola-git registers a `git_status` column that can be added to
+  `vim.g.canola.columns`. It shows the git status of each entry and is only
+  queried when the column is present in the columns list.
+  >lua
+    vim.g.canola = {
+      columns = { 'icon', 'git_status', 'size', 'mtime' },
+    }
+<
+  The column is a read-only display; it does not affect mutations.
+
+  Hidden file fallback ~
+  In directories that are not inside a git repository, canola-git falls back
+  to the default dotfile rule (hide names starting with `.`).
+
+  Empty repository ~
+  When the repository has no commits (`HEAD` is unborn), all dotfiles are
+  treated as untracked and hidden. Non-dotfile visibility follows the
+  `show.*` options.
 
 ==============================================================================
 EXTENSIONS                                      *canola-collection-extensions*
