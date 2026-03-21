@@ -278,6 +278,26 @@ M._init = function()
   })
 end
 
+M.get_status = function(dir, name)
+  local cache = M._cache[dir]
+  if not cache or cache == false or not cache.status then
+    return nil
+  end
+  local xy = cache.status[name]
+  if not xy then
+    return nil
+  end
+  local c = status_char(xy)
+  if c == ' ' then
+    return nil
+  end
+  return {
+    status = xy,
+    char = c,
+    hl = STAT_HL[c] or 'Normal',
+  }
+end
+
 M.invalidate = function()
   M._cache = {}
   pending = {}
