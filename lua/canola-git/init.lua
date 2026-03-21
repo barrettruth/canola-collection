@@ -233,27 +233,46 @@ M._init = function()
     end,
   })
 
-  local function invalidate_all()
-    M._cache = {}
-    pending = {}
-    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-      if vim.bo[bufnr].filetype == 'canola' then
-        local dir = require('canola').get_current_dir(bufnr)
-        if dir then
-          populate_cache(dir)
-        end
-      end
-    end
-  end
-
   vim.api.nvim_create_autocmd('User', {
     pattern = 'CanolaMutationComplete',
-    callback = invalidate_all,
+    callback = function()
+      M.invalidate()
+    end,
   })
 
   vim.api.nvim_create_autocmd('FocusGained', {
-    callback = invalidate_all,
+    callback = function()
+      M.invalidate()
+    end,
   })
+
+  vim.api.nvim_create_autocmd('BufEnter', {
+    callback = function(args)
+      if vim.bo[args.buf].filetype ~= 'canola' then
+        return
+      end
+      local ok, dir = pcall(require('canola').get_current_dir, args.buf)
+      if not ok or not dir then
+        return
+      end
+      M._cache[dir] = nil
+      pending[dir] = nil
+      populate_cache(dir)
+    end,
+  })
+end
+
+M.invalidate = function()
+  M._cache = {}
+  pending = {}
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.bo[bufnr].filetype == 'canola' then
+      local ok, dir = pcall(require('canola').get_current_dir, bufnr)
+      if ok and dir then
+        populate_cache(dir)
+      end
+    end
+  end
 end
 
 return M

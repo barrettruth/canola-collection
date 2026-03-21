@@ -107,9 +107,8 @@ canola-trash                                                    *canola-trash*
 canola-git                                                        *canola-git*
   Git-aware hidden file filtering for local directories. Replaces the default
   dotfile filter with one that respects the git index: tracked dotfiles are
-  shown, untracked dotfiles and ignored files are hidden.
-
-  Call `require('canola-git').setup()` after `vim.g.canola_git` is set.
+  shown, untracked dotfiles and ignored files are hidden. Activates
+  automatically when canola-collection is loaded.
 
   Configuration:                                           *vim.g.canola_git*
   >lua
@@ -145,10 +144,30 @@ canola-git                                                        *canola-git*
   queried when the column is present in the columns list.
   >lua
     vim.g.canola = {
-      columns = { 'icon', 'git_status', 'size', 'mtime' },
+      columns = { 'git_status', 'icon' },
     }
 <
   The column is a read-only display; it does not affect mutations.
+
+  Cache invalidation ~
+  Git status is cached per directory. The cache is automatically refreshed
+  on `CanolaMutationComplete` (after file operations via canola),
+  `FocusGained` (returning to nvim after external changes), and `BufEnter`
+  (re-entering a canola buffer). To trigger a manual refresh from a custom
+  event or keymap, call `invalidate()`:
+                                              *canola-git.invalidate()*
+  >lua
+    require('canola-git').invalidate()
+<
+  This clears the entire cache and re-queries git for all visible canola
+  buffers. For example, to also refresh after `:!` shell commands:
+  >lua
+    vim.api.nvim_create_autocmd('ShellCmdPost', {
+      callback = function()
+        require('canola-git').invalidate()
+      end,
+    })
+<
 
   Hidden file fallback ~
   In directories that are not inside a git repository, canola-git falls back
