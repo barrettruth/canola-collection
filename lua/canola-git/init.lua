@@ -14,6 +14,17 @@ local STAT_HL = {
   ['U'] = 'DiagnosticError',
 }
 
+local STATUS_PRIORITY = {
+  ['U'] = 6,
+  ['D'] = 5,
+  ['M'] = 4,
+  ['R'] = 3,
+  ['C'] = 3,
+  ['A'] = 2,
+  ['?'] = 1,
+  ['!'] = 0,
+}
+
 local function get_config()
   return vim.tbl_deep_extend('keep', vim.g.canola_git or {}, {
     enabled = true,
@@ -26,23 +37,16 @@ local function is_dotfile(name)
   return name:match('^%.') ~= nil
 end
 
-local function needs_status_column()
-  local cols = (vim.g.canola or {}).columns or {}
-  for _, col in ipairs(cols) do
-    local name = type(col) == 'table' and col[1] or col
-    if name == 'git_status' then
-      return true
-    end
-  end
-  return false
+local function status_char(xy)
+  local x, y = xy:sub(1, 1), xy:sub(2, 2)
+  return x ~= ' ' and x or y
 end
 
 local function format_status(xy, fmt)
   if not xy then
     return nil
   end
-  local x, y = xy:sub(1, 1), xy:sub(2, 2)
-  local c = x ~= ' ' and x or y
+  local c = status_char(xy)
   if c == ' ' then
     return nil
   end
@@ -54,6 +58,11 @@ local function format_status(xy, fmt)
   else
     return c
   end
+end
+
+local function first_component(path)
+  local slash = path:find('/', 1, true)
+  return slash and path:sub(1, slash - 1) or path
 end
 
 local function populate_cache(dir)
@@ -73,8 +82,7 @@ local function populate_cache(dir)
   local ignored = nil
   local tracked = nil
   local status = nil
-  local with_status = needs_status_column()
-  local remaining = with_status and 3 or 2
+  local remaining = 3
 
   local function on_query_done()
     remaining = remaining - 1
@@ -87,14 +95,14 @@ local function populate_cache(dir)
   end
 
   vim.system(
-    { 'git', 'ls-tree', 'HEAD', '--name-only' },
+    { 'git', 'ls-files' },
     { cwd = dir, text = true },
     vim.schedule_wrap(function(result)
       tracked = {}
       if result.code == 0 then
         for _, line in ipairs(vim.split(result.stdout, '\n', { plain = true })) do
           if line ~= '' then
-            tracked[line] = true
+            tracked[first_component(line)] = true
           end
         end
       end
@@ -119,34 +127,40 @@ local function populate_cache(dir)
     end)
   )
 
-  if with_status then
-    vim.system(
-      { 'git', 'status', '--porcelain', '--', '.' },
-      { cwd = dir, text = true },
-      vim.schedule_wrap(function(result)
-        status = {}
-        if result.code == 0 then
-          for _, line in ipairs(vim.split(result.stdout, '\n', { plain = true })) do
-            if #line >= 4 then
-              local xy = line:sub(1, 2)
-              local path = line:sub(4)
-              local arrow = path:find(' -> ', 1, true)
-              if arrow then
-                path = path:sub(arrow + 4)
-              end
-              path = path:gsub('/$', '')
-              local slash = path:find('/', 1, true)
-              local name = slash and path:sub(1, slash - 1) or path
-              if name ~= '' and not status[name] then
+  vim.system(
+    { 'git', 'status', '--porcelain', '--', '.' },
+    { cwd = dir, text = true },
+    vim.schedule_wrap(function(result)
+      status = {}
+      if result.code == 0 then
+        for _, line in ipairs(vim.split(result.stdout, '\n', { plain = true })) do
+          if #line >= 4 then
+            local xy = line:sub(1, 2)
+            local path = line:sub(4)
+            local arrow = path:find(' -> ', 1, true)
+            if arrow then
+              path = path:sub(arrow + 4)
+            end
+            path = path:gsub('/$', '')
+            local name = first_component(path)
+            if name ~= '' then
+              local existing = status[name]
+              if not existing then
                 status[name] = xy
+              else
+                local new_pri = STATUS_PRIORITY[status_char(xy)] or 0
+                local old_pri = STATUS_PRIORITY[status_char(existing)] or 0
+                if new_pri > old_pri then
+                  status[name] = xy
+                end
               end
             end
           end
         end
-        on_query_done()
-      end)
-    )
-  end
+      end
+      on_query_done()
+    end)
+  )
 end
 
 local function is_hidden(name, bufnr)
@@ -203,7 +217,7 @@ M._init = function()
       if not text then
         return nil
       end
-      local c = xy:sub(1, 1) ~= ' ' and xy:sub(1, 1) or xy:sub(2, 2)
+      local c = status_char(xy)
       return { text, STAT_HL[c] or 'Normal' }
     end,
   })
@@ -255,8 +269,10 @@ M._init = function()
       if not ok or not dir then
         return
       end
+      if pending[dir] then
+        return
+      end
       M._cache[dir] = nil
-      pending[dir] = nil
       populate_cache(dir)
     end,
   })
