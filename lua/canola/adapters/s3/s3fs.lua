@@ -42,8 +42,8 @@ local function parse_ls_line_file(line)
   return name, type, meta
 end
 
----@param cmd string[] cmd and flags
----@return string[] Shell command to run
+---@param cmd string[]
+---@return string[]
 local function create_s3_command(cmd)
   local bucket
   for _, arg in ipairs(cmd) do

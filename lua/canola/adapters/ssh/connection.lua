@@ -20,6 +20,9 @@ local util = require('canola.util')
 ---@field private _stdout string[]
 local SSHConnection = {}
 
+---@param agg string[]
+---@param output string[]
+---@return integer
 local function output_extend(agg, output)
   local start = #agg
   if vim.tbl_isempty(agg) then
@@ -193,6 +196,7 @@ function SSHConnection:_set_connection_error(err)
   end
 end
 
+---@param start_i integer
 function SSHConnection:_handle_output(start_i)
   if not self.connected then
     for i = start_i, #self._stdout - 1 do

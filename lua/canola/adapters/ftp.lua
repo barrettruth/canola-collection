@@ -203,6 +203,7 @@ local function url_hosts_equal(url1, url2)
   return url1.host == url2.host and url1.port == url2.port and url1.user == url2.user
 end
 
+---@type table<string, integer>
 local month_map = {
   Jan = 1,
   Feb = 2,
@@ -310,6 +311,7 @@ local function parse_iis_list_line(line)
 end
 
 local ftp_columns = {}
+---@type canola.ColumnDefinition
 ftp_columns.size = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -344,6 +346,7 @@ ftp_columns.size = {
   end,
 }
 
+---@type canola.ColumnDefinition
 ftp_columns.mtime = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -367,6 +370,7 @@ ftp_columns.mtime = {
   end,
 }
 
+---@type canola.ColumnDefinition
 ftp_columns.permissions = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -408,6 +412,7 @@ ftp_columns.permissions = {
   end,
 }
 
+---@type canola.ColumnDefinition
 ftp_columns.owner = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -422,6 +427,7 @@ ftp_columns.owner = {
   end,
 }
 
+---@type canola.ColumnDefinition
 ftp_columns.group = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -658,6 +664,7 @@ M.perform_action = function(action, cb)
   end
 end
 
+---@type table<string, string>
 M.supported_cross_adapter_actions = { files = 'copy' }
 
 ---@param bufnr integer

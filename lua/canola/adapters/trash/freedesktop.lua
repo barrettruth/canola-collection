@@ -12,6 +12,7 @@ local FIELD_META = constants.FIELD_META
 
 local M = {}
 
+---@param path string
 local function ensure_trash_dir(path)
   local mode = 448 -- 0700
   fs.mkdirp(fs.join(path, 'info'), mode)
@@ -345,12 +346,14 @@ end
 
 local file_columns = {}
 
+---@type string
 local current_year
 -- Make sure we run this import-time effect in the main loop (mostly for tests)
 vim.schedule(function()
   current_year = vim.fn.strftime('%Y')
 end)
 
+---@type canola.ColumnDefinition
 file_columns.mtime = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -407,6 +410,7 @@ M.get_column = function(name)
   return file_columns[name]
 end
 
+---@type table<string, string>
 M.supported_cross_adapter_actions = { files = 'move' }
 
 ---@param action canola.Action

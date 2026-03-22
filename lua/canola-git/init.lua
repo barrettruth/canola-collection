@@ -1,8 +1,26 @@
+---@class (exact) canola.git.Config
+---@field enabled boolean
+---@field show {untracked: boolean, ignored: boolean}
+---@field format 'compact'|'porcelain'|'symbol'
+
+---@class (exact) canola.git.CacheEntry
+---@field ignored table<string, boolean>
+---@field tracked table<string, boolean>
+---@field status table<string, string>
+
+---@class (exact) canola.git.StatusResult
+---@field status string
+---@field char string
+---@field hl string
+
 local M = {}
 
+---@type table<string, canola.git.CacheEntry|false>
 M._cache = {}
+---@type table<string, true>
 local pending = {}
 
+---@type table<string, string>
 local STAT_HL = {
   ['?'] = 'DiagnosticHint',
   ['!'] = 'Comment',
@@ -14,6 +32,7 @@ local STAT_HL = {
   ['U'] = 'DiagnosticError',
 }
 
+---@type table<string, integer>
 local STATUS_PRIORITY = {
   ['U'] = 6,
   ['D'] = 5,
@@ -25,6 +44,7 @@ local STATUS_PRIORITY = {
   ['!'] = 0,
 }
 
+---@return canola.git.Config
 local function get_config()
   return vim.tbl_deep_extend('keep', vim.g.canola_git or {}, {
     enabled = true,
@@ -33,15 +53,22 @@ local function get_config()
   })
 end
 
+---@param name string
+---@return boolean
 local function is_dotfile(name)
   return name:match('^%.') ~= nil
 end
 
+---@param xy string
+---@return string
 local function status_char(xy)
   local x, y = xy:sub(1, 1), xy:sub(2, 2)
   return x ~= ' ' and x or y
 end
 
+---@param xy string?
+---@param fmt string
+---@return string?
 local function format_status(xy, fmt)
   if not xy then
     return nil
@@ -60,11 +87,14 @@ local function format_status(xy, fmt)
   end
 end
 
+---@param path string
+---@return string
 local function first_component(path)
   local slash = path:find('/', 1, true)
   return slash and path:sub(1, slash - 1) or path
 end
 
+---@param dir string
 local function populate_cache(dir)
   if pending[dir] then
     return
@@ -83,9 +113,12 @@ local function populate_cache(dir)
     return
   end
 
-  local ignored = nil
-  local tracked = nil
-  local status = nil
+  ---@type table<string, boolean>
+  local ignored
+  ---@type table<string, boolean>
+  local tracked
+  ---@type table<string, string>
+  local status
   local remaining = 3
 
   local function on_query_done()
@@ -167,6 +200,9 @@ local function populate_cache(dir)
   )
 end
 
+---@param name string
+---@param bufnr integer
+---@return boolean
 local function is_hidden(name, bufnr)
   if name == '..' then
     return false
@@ -282,6 +318,9 @@ M._init = function()
   })
 end
 
+---@param dir string
+---@param name string
+---@return canola.git.StatusResult?
 M.get_status = function(dir, name)
   local cache = M._cache[dir]
   if not cache or cache == false or not cache.status then

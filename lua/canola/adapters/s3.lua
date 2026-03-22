@@ -80,6 +80,7 @@ local function is_bucket(url)
 end
 
 local s3_columns = {}
+---@type canola.ColumnDefinition
 s3_columns.size = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -114,6 +115,7 @@ s3_columns.size = {
   end,
 }
 
+---@type canola.ColumnDefinition
 s3_columns.birthtime = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -335,6 +337,7 @@ M.perform_action = function(action, cb)
   end
 end
 
+---@type table<string, string>
 M.supported_cross_adapter_actions = { files = 'move' }
 
 ---@param bufnr integer

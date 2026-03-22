@@ -26,6 +26,7 @@ function PowershellConnection.new(init_command)
   return self
 end
 
+---@private
 ---@param init_command? string
 function PowershellConnection:_init(init_command)
   -- For some reason beyond my understanding, at least one of the following
@@ -94,6 +95,7 @@ function PowershellConnection:run(command, cb)
   end
 end
 
+---@private
 function PowershellConnection:_consume()
   if not vim.tbl_isempty(self.commands) then
     local cmd = self.commands[1]

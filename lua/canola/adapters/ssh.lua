@@ -111,6 +111,7 @@ local function url_hosts_equal(url1, url2)
   return url1.host == url2.host and url1.port == url2.port and url1.user == url2.user
 end
 
+---@type table<string, canola.sshFs>
 local _connections = {}
 ---@param url string
 ---@param allow_retry nil|boolean
@@ -129,6 +130,7 @@ local function get_connection(url, allow_retry)
 end
 
 local ssh_columns = {}
+---@type canola.ColumnDefinition
 ssh_columns.permissions = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -162,6 +164,7 @@ ssh_columns.permissions = {
   end,
 }
 
+---@type canola.ColumnDefinition
 ssh_columns.owner = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -176,6 +179,7 @@ ssh_columns.owner = {
   end,
 }
 
+---@type canola.ColumnDefinition
 ssh_columns.group = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -190,6 +194,7 @@ ssh_columns.group = {
   end,
 }
 
+---@type canola.ColumnDefinition
 ssh_columns.size = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -424,6 +429,7 @@ M.perform_action = function(action, cb)
   end
 end
 
+---@type table<string, string>
 M.supported_cross_adapter_actions = { files = 'copy' }
 
 ---@param bufnr integer
