@@ -129,6 +129,7 @@ M.is_modifiable = function(_bufnr)
   return true
 end
 
+---@type string
 local current_year
 -- Make sure we run this import-time effect in the main loop (mostly for tests)
 vim.schedule(function()
@@ -136,6 +137,7 @@ vim.schedule(function()
 end)
 
 local file_columns = {}
+---@type canola.ColumnDefinition
 file_columns.mtime = {
   render = function(entry, conf)
     local meta = entry[FIELD_META]
@@ -401,6 +403,7 @@ M.perform_action = function(action, cb)
   end
 end
 
+---@type table<string, string>
 M.supported_cross_adapter_actions = { files = 'move' }
 
 ---@param path string

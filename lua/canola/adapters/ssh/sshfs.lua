@@ -12,6 +12,7 @@ local SSHFS = {}
 local FIELD_TYPE = constants.FIELD_TYPE
 local FIELD_META = constants.FIELD_META
 
+---@type table<string, canola.EntryType>
 local typechar_map = {
   l = 'link',
   d = 'directory',
@@ -85,6 +86,7 @@ function SSHFS.new(url)
   })
 end
 
+---@return string?
 function SSHFS:get_connection_error()
   return self.conn.connection_error
 end
@@ -101,6 +103,8 @@ function SSHFS:open_terminal()
   self.conn:open_terminal()
 end
 
+---@param path string
+---@param callback fun(err?: string, abspath?: string)
 function SSHFS:realpath(path, callback)
   local cmd = string.format(
     'if ! readlink -f "%s" 2>/dev/null; then case "%s" in /*) echo "%s";; *) echo "$PWD/%s";; esac; fi',
@@ -140,6 +144,7 @@ function SSHFS:realpath(path, callback)
   end)
 end
 
+---@type table<string, table>
 local dir_meta = {}
 
 ---@param url string
@@ -253,10 +258,13 @@ function SSHFS:cp(src, dest, callback)
   self.conn:run(string.format('cp -r %s %s', shellescape(src), shellescape(dest)), callback)
 end
 
+---@param url string
+---@return table?
 function SSHFS:get_dir_meta(url)
   return dir_meta[url]
 end
 
+---@return {user?: string, groups?: string[]}
 function SSHFS:get_meta()
   return self.conn.meta
 end

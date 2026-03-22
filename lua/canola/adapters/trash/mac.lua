@@ -8,6 +8,7 @@ local uv = vim.uv or vim.loop
 
 local M = {}
 
+---@param path string
 local function touch_dir(path)
   uv.fs_mkdir(path, 448) -- 0700
 end
@@ -153,6 +154,7 @@ M.get_column = function(name)
   return nil
 end
 
+---@type table<string, string>
 M.supported_cross_adapter_actions = { files = 'move' }
 
 ---@param action canola.Action
