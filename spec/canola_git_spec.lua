@@ -181,4 +181,89 @@ describe('canola-git', function()
       assert.is_true(hidden_fn('node_modules', 1, {}))
     end)
   end)
+
+  describe('get_status()', function()
+    before_each(function()
+      inject_mocks(make_canola_mock('/repo'), make_git_mock('/repo'), make_view_mock())
+      canola_git = require('canola-git')
+      canola_git._init()
+    end)
+
+    it('returns nil for uncached directory', function()
+      assert.is_nil(canola_git.get_status('/repo', 'file.lua'))
+    end)
+
+    it('returns nil for unknown file', function()
+      canola_git._cache = { ['/repo'] = { status = {}, tracked = {}, ignored = {} } }
+      assert.is_nil(canola_git.get_status('/repo', 'file.lua'))
+    end)
+
+    it('returns index field for staged change', function()
+      canola_git._cache =
+        { ['/repo'] = { status = { ['file.lua'] = 'M ' }, tracked = {}, ignored = {} } }
+      local result = canola_git.get_status('/repo', 'file.lua')
+      assert.equals('M', result.index)
+      assert.is_nil(result.worktree)
+    end)
+
+    it('returns worktree field for unstaged change', function()
+      canola_git._cache =
+        { ['/repo'] = { status = { ['file.lua'] = ' M' }, tracked = {}, ignored = {} } }
+      local result = canola_git.get_status('/repo', 'file.lua')
+      assert.is_nil(result.index)
+      assert.equals('M', result.worktree)
+    end)
+
+    it('returns both index and worktree for staged+unstaged', function()
+      canola_git._cache =
+        { ['/repo'] = { status = { ['file.lua'] = 'AM' }, tracked = {}, ignored = {} } }
+      local result = canola_git.get_status('/repo', 'file.lua')
+      assert.equals('A', result.index)
+      assert.equals('M', result.worktree)
+      assert.equals('AM', result.status)
+      assert.equals('A', result.char)
+    end)
+  end)
+
+  describe('git_status column render', function()
+    local render_fn
+
+    before_each(function()
+      local columns_mock = {
+        register = function(_name, def)
+          render_fn = def.render
+        end,
+      }
+      package.loaded['canola'] = make_canola_mock('/repo')
+      package.loaded['canola.git'] = make_git_mock('/repo')
+      package.loaded['canola.view'] = make_view_mock()
+      package.loaded['canola.columns'] = columns_mock
+      package.loaded['canola.constants'] = { FIELD_NAME = 2 }
+      canola_git = require('canola-git')
+      canola_git._init()
+    end)
+
+    it('returns range-based highlights for porcelain format', function()
+      vim.g.canola_git = { format = 'porcelain' }
+      canola_git._cache =
+        { ['/repo'] = { status = { ['file.lua'] = 'AM' }, tracked = {}, ignored = {} } }
+      local result = render_fn({ nil, 'file.lua' }, {}, 0)
+      assert.equals('AM', result[1])
+      assert.same({ { 'DiagnosticOk', 0, 1 }, { 'DiagnosticWarn', 1, 2 } }, result[2])
+    end)
+
+    it('returns single highlight for compact format', function()
+      canola_git._cache =
+        { ['/repo'] = { status = { ['file.lua'] = ' M' }, tracked = {}, ignored = {} } }
+      local result = render_fn({ nil, 'file.lua' }, {}, 0)
+      assert.equals('M', result[1])
+      assert.equals('DiagnosticWarn', result[2])
+    end)
+
+    it('returns nil for file without status', function()
+      canola_git._cache = { ['/repo'] = { status = {}, tracked = {}, ignored = {} } }
+      local result = render_fn({ nil, 'clean.lua' }, {}, 0)
+      assert.is_nil(result)
+    end)
+  end)
 end)
