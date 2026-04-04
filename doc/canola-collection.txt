@@ -101,7 +101,7 @@ canola-trash                                                    *canola-trash*
   macOS, and Windows.
   Scheme: `canola-trash://path`
 
-  Enable by setting `delete_to_trash = true` in `vim.g.canola`.
+  Enable by setting `delete = { trash = true }` in `vim.g.canola`.
   No adapter-specific configuration.
 
 canola-git                                                        *canola-git*

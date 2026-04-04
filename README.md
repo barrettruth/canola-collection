@@ -114,7 +114,7 @@ enable it in canola:
 
 ```lua
 vim.g.canola = {
-  delete_to_trash = true,
+  delete = { trash = true },
 }
 ```
 
