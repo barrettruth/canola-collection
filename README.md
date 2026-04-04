@@ -134,3 +134,11 @@ require('resession').setup({
 ```
 :help canola-collection
 ```
+
+## Acknowledgements
+
+- [`oil.nvim`](https://github.com/stevearc/oil.nvim) — the file explorer
+  canola.nvim is built on
+- [`resession.nvim`](https://github.com/stevearc/resession.nvim) — session
+  restore framework
+- [@llakala](https://github.com/llakala) — `delete_to_trash` bug report (#40)
