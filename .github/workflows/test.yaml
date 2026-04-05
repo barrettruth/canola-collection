@@ -16,11 +16,13 @@ jobs:
     name: Test (Neovim ${{ matrix.nvim }})
     steps:
       - uses: actions/checkout@v4
+        with:
+          path: repo
       - uses: actions/checkout@v4
         with:
           repository: barrettruth/canola.nvim
           ref: canola
-          path: _canola
+          path: repo/_canola
       - uses: rhysd/action-setup-vim@v1
         id: setup-vim
         with:
@@ -29,3 +31,4 @@ jobs:
       - run: |
           export PATH="$(dirname '${{ steps.setup-vim.outputs.executable }}'):$PATH"
           nix shell nixpkgs#luajitPackages.busted nixpkgs#luajitPackages.nlua --command busted
+        working-directory: repo
