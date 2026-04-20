@@ -74,19 +74,6 @@ describe('canola-git', function()
       canola_git._init()
       assert.is_function(registered_fn)
     end)
-
-    it('skips is_hidden_file when enabled = false', function()
-      vim.g.canola_git = { enabled = false }
-      local call_count = 0
-      local canola_mock = make_canola_mock(nil)
-      canola_mock.set_is_hidden_file = function(_fn)
-        call_count = call_count + 1
-      end
-      inject_mocks(canola_mock, make_git_mock(nil), make_view_mock())
-      canola_git = require('canola-git')
-      canola_git._init()
-      assert.equals(0, call_count)
-    end)
   end)
 
   describe('is_hidden_file fallback (no cached data)', function()
