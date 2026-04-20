@@ -1,5 +1,4 @@
 ---@class (exact) canola.git.Config
----@field enabled boolean
 ---@field show {untracked: boolean, ignored: boolean}
 ---@field format 'compact'|'porcelain'|'symbol'
 
@@ -55,7 +54,6 @@ local STATUS_PRIORITY = {
 ---@return canola.git.Config
 local function get_config()
   return vim.tbl_deep_extend('keep', vim.g.canola_git or {}, {
-    enabled = true,
     show = { untracked = true, ignored = false },
     format = 'compact',
   })
@@ -370,11 +368,6 @@ M._init = function()
       return { text, STAT_HL[c] or 'Normal' }
     end,
   })
-
-  local cfg = get_config()
-  if not cfg.enabled then
-    return
-  end
 
   require('canola').set_is_hidden_file(function(name, bufnr, _entry)
     return is_hidden(name, bufnr)

@@ -22,8 +22,9 @@ CONTENTS                                          *canola-collection-contents*
 OVERVIEW                                                   *canola-collection*
 
 canola-collection provides optional adapters and extensions for canola.nvim.
-All adapters are lazy-loaded and only activate when their URL scheme is first
-accessed. Adapter-specific configuration uses per-adapter `vim.g` tables.
+Components are opt-in. Define a component's `vim.g.canola_*` table before
+canola-collection loads to register it. Empty tables enable defaults. Adapter
+implementations are lazy-loaded when their URL scheme is first accessed.
 
 ==============================================================================
 ADAPTERS                                          *canola-collection-adapters*
@@ -31,6 +32,8 @@ ADAPTERS                                          *canola-collection-adapters*
 canola-ssh                                                        *canola-ssh*
   Browse remote filesystems via SSH. Uses SCP for file transfers.
   Scheme: `canola-ssh://[user@]host[:port]/path`
+  Define `vim.g.canola_ssh` to enable SSH support. An empty table enables
+  defaults.
 
   Configuration:                                           *vim.g.canola_ssh*
   >lua
@@ -56,6 +59,8 @@ canola-ssh                                                        *canola-ssh*
 canola-s3                                                          *canola-s3*
   Browse AWS S3 buckets via the `aws` CLI.
   Scheme: `canola-s3://bucket/prefix`
+  Define `vim.g.canola_s3` to enable S3 support. An empty table enables
+  defaults.
 
   Configuration:                                            *vim.g.canola_s3*
   >lua
@@ -77,6 +82,8 @@ canola-s3                                                          *canola-s3*
 canola-ftp                                                        *canola-ftp*
   Browse FTP/FTPS servers via `curl`.
   Scheme: `canola-ftp://host/path` or `canola-ftps://host/path`
+  Define `vim.g.canola_ftp` to enable FTP/FTPS support. An empty table
+  enables defaults.
 
   Configuration:                                           *vim.g.canola_ftp*
   >lua
@@ -101,25 +108,22 @@ canola-trash                                                    *canola-trash*
   macOS, and Windows.
   Scheme: `canola-trash://path`
 
-  Enable by setting `delete = { trash = true }` in `vim.g.canola`.
-  No adapter-specific configuration.
+  Define `vim.g.canola_trash` to enable trash support. An empty table enables
+  defaults.
 
 canola-git                                                        *canola-git*
   Git-aware hidden file filtering for local directories. Replaces the default
   dotfile filter with one that respects the git index: tracked dotfiles are
-  shown, untracked dotfiles and ignored files are hidden. Activates
-  automatically when canola-collection is loaded.
+  shown, untracked dotfiles and ignored files are hidden. Define
+  `vim.g.canola_git` to enable canola-git. An empty table enables defaults.
 
   Configuration:                                           *vim.g.canola_git*
   >lua
     vim.g.canola_git = {
-      enabled = true,
       show    = { untracked = true, ignored = false },
       format  = 'compact',
     }
 <
-  enabled       When `false`, disables all canola-git behaviour.
-
   show.untracked  When `false`, untracked non-dotfiles (new files not yet
                 staged or committed) are hidden alongside ignored files.
                 Default: `true`.

@@ -22,12 +22,14 @@ Install with your package manager of choice or via
 luarocks install canola-collection
 ```
 
-Adapters register themselves automatically on load. No `setup()` call needed.
+Components are opt-in. Define a component's `vim.g.canola_*` table before
+canola-collection loads to register it. Empty tables enable defaults. No
+`setup()` call needed.
 
 ## Configuration
 
-Each component has its own `vim.g` table. All are optional — defaults work out
-of the box.
+Each component has its own `vim.g` table. Define only the ones you want; empty
+tables enable defaults.
 
 ### canola-git
 
@@ -35,9 +37,10 @@ Git-aware hidden file filtering and a `git_status` column. Tracked dotfiles
 (`.gitignore`, `.github/`) stay visible. Gitignored files disappear. Directories
 show the most severe status among their children.
 
+Define `vim.g.canola_git` to enable canola-git. An empty table enables defaults.
+
 ```lua
 vim.g.canola_git = {
-  enabled = true,
   show = { untracked = true, ignored = false },
   format = 'compact', -- 'compact' | 'symbol' | 'porcelain'
 }
@@ -62,6 +65,9 @@ require('canola-git').invalidate()
 
 Browse remote filesystems via SSH. Uses SCP for file transfers.
 
+Define `vim.g.canola_ssh` to enable SSH support. An empty table enables
+defaults.
+
 ```lua
 vim.g.canola_ssh = {
   extra_args = {},
@@ -79,6 +85,8 @@ Open with `:edit canola-ssh://user@host/path/`.
 
 Browse AWS S3 buckets via the `aws` CLI.
 
+Define `vim.g.canola_s3` to enable S3 support. An empty table enables defaults.
+
 ```lua
 vim.g.canola_s3 = {
   extra_args = {},
@@ -95,6 +103,9 @@ Open with `:edit canola-s3://bucket/prefix/`.
 
 Browse FTP/FTPS servers via `curl`.
 
+Define `vim.g.canola_ftp` to enable FTP/FTPS support. An empty table enables
+defaults.
+
 ```lua
 vim.g.canola_ftp = {
   extra_args = {},
@@ -109,13 +120,11 @@ Open with `:edit canola-ftp://host/path/` or `canola-ftps://host/path/`.
 
 ### canola-trash
 
-OS-specific recycle bin (freedesktop, macOS, Windows). No separate config —
-enable it in canola:
+OS-specific recycle bin (freedesktop, macOS, Windows). Define
+`vim.g.canola_trash` to enable it. An empty table enables defaults:
 
 ```lua
-vim.g.canola = {
-  delete = { trash = true },
-}
+vim.g.canola_trash = {}
 ```
 
 ### canola-resession
