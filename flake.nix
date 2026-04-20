@@ -19,35 +19,26 @@
     {
       formatter = forEachSystem (pkgs: pkgs.nixfmt-tree);
 
-      devShells = forEachSystem (pkgs: {
-        default = pkgs.mkShell {
-          packages = [
+      devShells = forEachSystem (
+        pkgs:
+        let
+          commonPackages = [
             pkgs.prettier
             pkgs.stylua
             pkgs.selene
             pkgs.lua-language-server
             pkgs.vimdoc-language-server
+            pkgs.just
             (pkgs.luajit.withPackages (ps: [
               ps.busted
               ps.nlua
             ]))
           ];
-        };
-
-        ci = pkgs.mkShell {
-          packages = [
-            pkgs.prettier
-            pkgs.neovim
-            pkgs.stylua
-            pkgs.selene
-            pkgs.lua-language-server
-            pkgs.vimdoc-language-server
-            (pkgs.luajit.withPackages (ps: [
-              ps.busted
-              ps.nlua
-            ]))
-          ];
-        };
-      });
+        in
+        {
+          default = pkgs.mkShell { packages = commonPackages; };
+          ci = pkgs.mkShell { packages = commonPackages ++ [ pkgs.neovim ]; };
+        }
+      );
     };
 }
