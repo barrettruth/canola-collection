@@ -367,7 +367,7 @@ local function populate_cache(dir, reason)
   )
 
   vim.system(
-    { 'git', 'status', '--porcelain', '--', '.' },
+    { 'git', '--no-optional-locks', 'status', '--porcelain', '--', '.' },
     { cwd = dir, text = true },
     vim.schedule_wrap(function(result)
       status = {}
@@ -522,6 +522,9 @@ M._init = function()
   vim.api.nvim_create_autocmd('BufEnter', {
     callback = function(args)
       if vim.bo[args.buf].filetype ~= 'canola' then
+        return
+      end
+      if not vim.b[args.buf].canola_ready then
         return
       end
       local ok, dir = pcall(require('canola').get_current_dir, args.buf)

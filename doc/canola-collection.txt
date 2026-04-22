@@ -197,18 +197,12 @@ canola-git                                                        *canola-git*
                        `focus_gained`, `shell_cmd_post`, `buf_enter`,
                        or `watch`.
 
-  Example — print git update reason: >lua
+  For example, to print the update reason and inspect raw cached path
+  statuses: >lua
     vim.api.nvim_create_autocmd('User', {
       pattern = 'CanolaGitUpdate',
       callback = function(args)
         print(args.data.reason)
-      end,
-    })
-<
-  Example — inspect raw cached path statuses: >lua
-    vim.api.nvim_create_autocmd('User', {
-      pattern = 'CanolaGitUpdate',
-      callback = function(args)
         local cache = require('canola-git')._cache[args.data.dir]
         if not cache or cache == false then
           return

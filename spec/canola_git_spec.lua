@@ -262,7 +262,9 @@ describe('canola-git', function()
     local system_outputs
     local original_create_autocmd
     local original_exec_autocmds
+    local original_now
     local original_system
+    local fake_now
 
     local function has_event(event, expected)
       if type(event) == 'table' then
@@ -295,7 +297,7 @@ describe('canola-git', function()
           code = 0,
           stdout = 'build/\n',
         },
-        ['git status --porcelain -- .'] = {
+        ['git --no-optional-locks status --porcelain -- .'] = {
           code = 0,
           stdout = table.concat({
             ' M sub/file.lua',
@@ -308,7 +310,9 @@ describe('canola-git', function()
 
       original_create_autocmd = vim.api.nvim_create_autocmd
       original_exec_autocmds = vim.api.nvim_exec_autocmds
+      original_now = vim.uv.now
       original_system = vim.system
+      fake_now = 1000
 
       vim.api.nvim_create_autocmd = function(event, opts)
         table.insert(autocmds, { event = event, opts = opts })
@@ -318,6 +322,10 @@ describe('canola-git', function()
       vim.api.nvim_exec_autocmds = function(event, opts)
         table.insert(order, 'event')
         table.insert(fired_events, { event = event, opts = opts })
+      end
+
+      vim.uv.now = function()
+        return fake_now
       end
 
       vim.system = function(cmd, _opts, callback)
@@ -339,6 +347,7 @@ describe('canola-git', function()
     after_each(function()
       vim.api.nvim_create_autocmd = original_create_autocmd
       vim.api.nvim_exec_autocmds = original_exec_autocmds
+      vim.uv.now = original_now
       vim.system = original_system
       if tmpdir then
         vim.fn.delete(tmpdir, 'rf')
@@ -393,6 +402,46 @@ describe('canola-git', function()
       assert.equals('CanolaGitUpdate', fired_events[1].opts.pattern)
       assert.same({ dir = tmpdir, root = tmpdir, reason = 'initial' }, fired_events[1].opts.data)
       assert.same({ 'event', 'rerender' }, order)
+    end)
+
+    it('prefers initial over buf_enter before canola_ready', function()
+      local bufnr = vim.api.nvim_create_buf(false, true)
+      local buf_enter = assert(get_autocmd('BufEnter'))
+      local read_post = assert(get_autocmd('User', 'CanolaReadPost'))
+
+      vim.bo[bufnr].filetype = 'canola'
+
+      buf_enter({ buf = bufnr })
+
+      assert.is_nil(canola_git._cache[tmpdir])
+      assert.same({}, fired_events)
+
+      read_post({ data = { buf = bufnr } })
+
+      assert.equals('initial', fired_events[1].opts.data.reason)
+      vim.api.nvim_buf_delete(bufnr, { force = true })
+    end)
+
+    it('refreshes on buf_enter after canola_ready when cache is stale', function()
+      local bufnr = vim.api.nvim_create_buf(false, true)
+      local buf_enter = assert(get_autocmd('BufEnter'))
+      local read_post = assert(get_autocmd('User', 'CanolaReadPost'))
+
+      vim.bo[bufnr].filetype = 'canola'
+
+      read_post({ data = { buf = bufnr } })
+
+      fired_events = {}
+      order = {}
+      vim.b[bufnr].canola_ready = true
+      fake_now = 4001
+
+      buf_enter({ buf = bufnr })
+
+      assert.equals('CanolaGitUpdate', fired_events[1].opts.pattern)
+      assert.equals('buf_enter', fired_events[1].opts.data.reason)
+      assert.same({ 'event', 'rerender' }, order)
+      vim.api.nvim_buf_delete(bufnr, { force = true })
     end)
 
     it('uses manual as the default invalidate reason', function()
