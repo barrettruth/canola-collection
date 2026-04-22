@@ -2,17 +2,52 @@
 ---@field show {untracked: boolean, ignored: boolean}
 ---@field format 'compact'|'porcelain'|'symbol'
 
+---@alias canola.git.PathStatusType
+---| 'added'
+---| 'copied'
+---| 'deleted'
+---| 'modified'
+---| 'renamed'
+---| 'type_changed'
+---| 'unmerged'
+---| 'unknown'
+---| 'untracked'
+
+---@alias canola.git.UpdateReason
+---| 'buf_enter'
+---| 'focus_gained'
+---| 'initial'
+---| 'manual'
+---| 'mutation_complete'
+---| 'shell_cmd_post'
+---| 'watch'
+
+---@class (exact) canola.git.PathStatus
+---@field status string Raw two-character porcelain code.
+---@field char string Resolved single-character status.
+---@field type canola.git.PathStatusType Primary status kind for recipes.
+---@field index string? Index status character when present.
+---@field worktree string? Worktree status character when present.
+---@field source_path string? Source path relative to dir for rename/copy entries.
+
 ---@class (exact) canola.git.CacheEntry
----@field ignored table<string, boolean>
----@field tracked table<string, boolean>
----@field status table<string, string>
+---@field root string Git repository root for this cache entry.
+---@field ignored table<string, boolean> First-level ignored names in this dir.
+---@field tracked table<string, boolean> First-level tracked names in this dir.
+---@field status table<string, string> Aggregated first-level statuses for visible entries.
+---@field path_status table<string, canola.git.PathStatus> Raw statuses keyed by path relative to dir.
 
 ---@class (exact) canola.git.StatusResult
----@field status string
----@field char string
----@field hl string
----@field index string?
----@field worktree string?
+---@field status string Raw two-character porcelain code.
+---@field char string Resolved single-character status.
+---@field hl string Highlight group for the resolved status.
+---@field index string? Index status character when present.
+---@field worktree string? Worktree status character when present.
+
+---@class (exact) canola.git.UpdateEventData
+---@field dir string Absolute directory path whose cache was refreshed.
+---@field root string Git repository root containing dir.
+---@field reason canola.git.UpdateReason What triggered the refresh.
 
 local M = {}
 
@@ -46,9 +81,22 @@ local STATUS_PRIORITY = {
   ['M'] = 4,
   ['R'] = 3,
   ['C'] = 3,
+  ['T'] = 3,
   ['A'] = 2,
   ['?'] = 1,
   ['!'] = 0,
+}
+
+---@type table<string, canola.git.PathStatusType>
+local STATUS_TYPE = {
+  ['?'] = 'untracked',
+  ['A'] = 'added',
+  ['C'] = 'copied',
+  ['D'] = 'deleted',
+  ['M'] = 'modified',
+  ['R'] = 'renamed',
+  ['T'] = 'type_changed',
+  ['U'] = 'unmerged',
 }
 
 ---@return canola.git.Config
@@ -98,6 +146,53 @@ end
 local function first_component(path)
   local slash = path:find('/', 1, true)
   return slash and path:sub(1, slash - 1) or path
+end
+
+---@param path string
+---@param relprefix string
+---@return string
+local function normalize_path(path, relprefix)
+  path = path:gsub('/$', '')
+  if relprefix ~= '' and path:sub(1, #relprefix) == relprefix then
+    path = path:sub(#relprefix + 1)
+  end
+  return path
+end
+
+---@param xy string
+---@return canola.git.PathStatusType
+local function status_type(xy)
+  return STATUS_TYPE[status_char(xy)] or 'unknown'
+end
+
+---@param xy string
+---@param source_path string?
+---@return canola.git.PathStatus
+local function make_path_status(xy, source_path)
+  local x, y = xy:sub(1, 1), xy:sub(2, 2)
+  return {
+    status = xy,
+    char = status_char(xy),
+    type = status_type(xy),
+    index = x ~= ' ' and x or nil,
+    worktree = y ~= ' ' and y or nil,
+    source_path = source_path,
+  }
+end
+
+---@param dir string
+---@param root string
+---@param reason canola.git.UpdateReason
+local function emit_update(dir, root, reason)
+  vim.api.nvim_exec_autocmds('User', {
+    pattern = 'CanolaGitUpdate',
+    modeline = false,
+    data = {
+      dir = dir,
+      root = root,
+      reason = reason,
+    },
+  })
 end
 
 ---@param root string
@@ -160,7 +255,7 @@ local function start_watcher(root)
             if vim.api.nvim_win_is_valid(winid) then
               local bufnr = vim.api.nvim_win_get_buf(winid)
               if vim.bo[bufnr].filetype == 'canola' then
-                M.invalidate()
+                M.invalidate('watch')
                 return
               end
             end
@@ -186,7 +281,8 @@ local function stop_watchers()
 end
 
 ---@param dir string
-local function populate_cache(dir)
+---@param reason canola.git.UpdateReason
+local function populate_cache(dir, reason)
   if pending[dir] then
     return
   end
@@ -215,6 +311,8 @@ local function populate_cache(dir)
   local tracked
   ---@type table<string, string>
   local status
+  ---@type table<string, canola.git.PathStatus>
+  local path_status
   local remaining = 3
 
   local function on_query_done()
@@ -222,9 +320,16 @@ local function populate_cache(dir)
     if remaining > 0 then
       return
     end
-    M._cache[dir] = { ignored = ignored, tracked = tracked, status = status }
+    M._cache[dir] = {
+      root = root,
+      ignored = ignored,
+      tracked = tracked,
+      status = status,
+      path_status = path_status,
+    }
     cache_time[dir] = vim.uv.now()
     pending[dir] = nil
+    emit_update(dir, root, reason)
     require('canola.view').rerender_all_oil_buffers({ refetch = false })
   end
 
@@ -262,22 +367,28 @@ local function populate_cache(dir)
   )
 
   vim.system(
-    { 'git', 'status', '--porcelain', '--', '.' },
+    { 'git', '--no-optional-locks', 'status', '--porcelain', '--', '.' },
     { cwd = dir, text = true },
     vim.schedule_wrap(function(result)
       status = {}
+      path_status = {}
       if result.code == 0 then
         for _, line in ipairs(vim.split(result.stdout, '\n', { plain = true })) do
           if #line >= 4 then
             local xy = line:sub(1, 2)
             local path = line:sub(4)
+            local source_path
             local arrow = path:find(' -> ', 1, true)
             if arrow then
+              source_path = path:sub(1, arrow - 1)
               path = path:sub(arrow + 4)
             end
-            path = path:gsub('/$', '')
-            if relprefix ~= '' and path:sub(1, #relprefix) == relprefix then
-              path = path:sub(#relprefix + 1)
+            path = normalize_path(path, relprefix)
+            if source_path then
+              source_path = normalize_path(source_path, relprefix)
+            end
+            if path ~= '' then
+              path_status[path] = make_path_status(xy, source_path)
             end
             local name = first_component(path)
             if name ~= '' then
@@ -385,26 +496,35 @@ M._init = function()
       if M._cache[dir] ~= nil then
         return
       end
-      populate_cache(dir)
+      populate_cache(dir, 'initial')
     end,
   })
 
   vim.api.nvim_create_autocmd('User', {
     pattern = 'CanolaMutationComplete',
     callback = function()
-      M.invalidate()
+      M.invalidate('mutation_complete')
     end,
   })
 
-  vim.api.nvim_create_autocmd({ 'FocusGained', 'ShellCmdPost' }, {
+  vim.api.nvim_create_autocmd('FocusGained', {
     callback = function()
-      M.invalidate()
+      M.invalidate('focus_gained')
+    end,
+  })
+
+  vim.api.nvim_create_autocmd('ShellCmdPost', {
+    callback = function()
+      M.invalidate('shell_cmd_post')
     end,
   })
 
   vim.api.nvim_create_autocmd('BufEnter', {
     callback = function(args)
       if vim.bo[args.buf].filetype ~= 'canola' then
+        return
+      end
+      if not vim.b[args.buf].canola_ready then
         return
       end
       local ok, dir = pcall(require('canola').get_current_dir, args.buf)
@@ -418,7 +538,7 @@ M._init = function()
         return
       end
       M._cache[dir] = nil
-      populate_cache(dir)
+      populate_cache(dir, 'buf_enter')
     end,
   })
 end
@@ -449,7 +569,9 @@ M.get_status = function(dir, name)
   }
 end
 
-M.invalidate = function()
+---@param reason? canola.git.UpdateReason
+M.invalidate = function(reason)
+  reason = reason or 'manual'
   M._cache = {}
   cache_time = {}
   pending = {}
@@ -457,7 +579,7 @@ M.invalidate = function()
     if vim.bo[bufnr].filetype == 'canola' then
       local ok, dir = pcall(require('canola').get_current_dir, bufnr)
       if ok and dir then
-        populate_cache(dir)
+        populate_cache(dir, reason)
       end
     end
   end

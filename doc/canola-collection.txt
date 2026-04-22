@@ -186,6 +186,34 @@ canola-git                                                        *canola-git*
     })
 <
 
+  Update event ~                                              *CanolaGitUpdate*
+  `CanolaGitUpdate` fires after canola-git refreshes the cached git
+  snapshot for a local directory and before canola buffers rerender.
+
+  `args.data` fields:
+    `dir`    `string`  Absolute directory path whose cache was refreshed.
+    `root`   `string`  Git repository root containing `dir`.
+    `reason` `string`  One of `initial`, `manual`, `mutation_complete`,
+                       `focus_gained`, `shell_cmd_post`, `buf_enter`,
+                       or `watch`.
+
+  For example, to print the update reason and inspect raw cached path
+  statuses: >lua
+    vim.api.nvim_create_autocmd('User', {
+      pattern = 'CanolaGitUpdate',
+      callback = function(args)
+        print(args.data.reason)
+        local cache = require('canola-git')._cache[args.data.dir]
+        if not cache or cache == false then
+          return
+        end
+        for path, st in pairs(cache.path_status) do
+          print(path, st.type, st.status)
+        end
+      end,
+    })
+<
+
   Status API ~
                                               *canola-git.get_status()*
   >lua
