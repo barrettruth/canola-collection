@@ -214,11 +214,13 @@ describe('canola-git', function()
 
   describe('git_status column render', function()
     local render_fn
+    local all_empty_width_fn
 
     before_each(function()
       local columns_mock = {
         register = function(_name, def)
           render_fn = def.render
+          all_empty_width_fn = def.all_empty_width
         end,
       }
       package.loaded['canola'] = make_canola_mock('/repo')
@@ -251,6 +253,23 @@ describe('canola-git', function()
       canola_git._cache = { ['/repo'] = { status = {}, tracked = {}, ignored = {} } }
       local result = render_fn({ nil, 'clean.lua' }, {}, 0)
       assert.is_nil(result)
+    end)
+
+    it('reserves compact width for git repos without visible status', function()
+      assert.equals(1, all_empty_width_fn({}, 0))
+    end)
+
+    it('reserves porcelain width for git repos without visible status', function()
+      vim.g.canola_git = { format = 'porcelain' }
+      assert.equals(2, all_empty_width_fn({}, 0))
+    end)
+
+    it('returns nil width for non-git directories', function()
+      package.loaded['canola.git'] = make_git_mock(nil)
+      package.loaded['canola-git'] = nil
+      canola_git = require('canola-git')
+      canola_git._init()
+      assert.is_nil(all_empty_width_fn({}, 0))
     end)
   end)
 

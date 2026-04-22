@@ -453,6 +453,25 @@ end
 
 M._init = function()
   require('canola.columns').register('git_status', {
+    all_empty_width = function(_, bufnr)
+      local canola = require('canola')
+      local dir = canola.get_current_dir(bufnr)
+      if not dir then
+        return nil
+      end
+      local cache = M._cache[dir]
+      if cache == false then
+        return nil
+      end
+      if not cache and not require('canola.git').get_root(dir) then
+        return nil
+      end
+      if get_config().format == 'porcelain' then
+        return 2
+      else
+        return 1
+      end
+    end,
     render = function(entry, conf, bufnr)
       local name = entry[require('canola.constants').FIELD_NAME]
       local dir = require('canola').get_current_dir(bufnr)
