@@ -4,7 +4,7 @@ default:
 format:
     nix fmt -- --ci
     stylua --check .
-    prettier --check .
+    biome check .
 
 lint:
     git ls-files '*.lua' | xargs selene --display-style quiet
