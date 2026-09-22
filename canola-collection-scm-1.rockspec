@@ -9,7 +9,7 @@ source = {
 description = {
   summary = 'Optional adapters and extensions for canola.nvim',
   homepage = 'https://github.com/barrettruth/canola-collection',
-  license = 'MIT',
+  license = 'GPL-3.0',
 }
 
 dependencies = {
