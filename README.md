@@ -1,9 +1,5 @@
 # canola-collection
 
-> [!NOTE]
-> Active development is hosted on
-> [Forgejo](https://forge.barrettruth.com/barrettruth/canola-collection).
-
 Optional adapters and extensions for
 [canola.nvim](https://forge.barrettruth.com/barrettruth/canola.nvim). Install only what you
 need — canola core ships with the local filesystem adapter only.
