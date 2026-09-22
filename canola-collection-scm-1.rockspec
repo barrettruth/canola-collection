@@ -3,12 +3,12 @@ package = 'canola-collection'
 version = 'scm-1'
 
 source = {
-  url = 'git+https://github.com/barrettruth/canola-collection.git',
+  url = 'git+https://forge.barrettruth.com/barrettruth/canola-collection.git',
 }
 
 description = {
   summary = 'Optional adapters and extensions for canola.nvim',
-  homepage = 'https://github.com/barrettruth/canola-collection',
+  homepage = 'https://forge.barrettruth.com/barrettruth/canola-collection',
   license = 'GPL-3.0',
 }
 

@@ -1,7 +1,7 @@
 # canola-collection
 
 Optional adapters and extensions for
-[canola.nvim](https://github.com/barrettruth/canola.nvim). Install only what you
+[canola.nvim](https://forge.barrettruth.com/barrettruth/canola.nvim). Install only what you
 need — canola core ships with the local filesystem adapter only.
 
 | Component                             | Description                            |
