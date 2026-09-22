@@ -9,7 +9,7 @@ body:
       options:
         - label:
             I have searched [existing
-            issues](https://github.com/barrettruth/canola-collection/issues)
+            issues](https://forge.barrettruth.com/barrettruth/canola-collection/issues)
           required: true
 
   - type: textarea
