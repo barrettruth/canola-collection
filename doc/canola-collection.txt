@@ -7,6 +7,7 @@ License: GPL-3.0
 CONTENTS                                          *canola-collection-contents*
 
   Overview .......................... |canola-collection|
+  Migration ......................... |canola-collection-migration|
   Adapters .......................... |canola-collection-adapters|
     canola-ssh ...................... |canola-ssh|
     canola-s3 ....................... |canola-s3|
@@ -25,6 +26,16 @@ canola-collection provides optional adapters and extensions for canola.nvim.
 Components are opt-in. Define a component's `vim.g.canola_*` table before
 canola-collection loads to register it. Empty tables enable defaults. Adapter
 implementations are lazy-loaded when their URL scheme is first accessed.
+
+==============================================================================
+MIGRATION                                        *canola-collection-migration*
+
+canola-collection will be removed from GitHub on October 31, 2026. Update your
+plugin source to Forgejo: >lua
+    vim.pack.add({
+      'https://forge.barrettruth.com/barrettruth/canola-collection',
+    })
+<
 
 ==============================================================================
 ADAPTERS                                          *canola-collection-adapters*
