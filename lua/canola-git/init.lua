@@ -300,7 +300,7 @@ local function populate_cache(dir, reason)
     return
   end
   pcall(start_watcher, root)
-  local relprefix = dir:sub(#root + 1):gsub('^/', '')
+  local relprefix = dir:gsub('\\', '/'):sub(#root + 1):gsub('^/', '')
   if relprefix ~= '' and relprefix:sub(-1) ~= '/' then
     relprefix = relprefix .. '/'
   end
