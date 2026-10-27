@@ -15,12 +15,7 @@ need — canola core ships with the local filesystem adapter only.
 
 ## Installation
 
-Install with your package manager of choice or via
-[luarocks](https://luarocks.org/modules/barrettruth/canola-collection):
-
-```
-luarocks install canola-collection
-```
+Install with your package manager of choice.
 
 Components are opt-in. Define a component's `vim.g.canola_*` table before
 canola-collection loads to register it. Empty tables enable defaults. No

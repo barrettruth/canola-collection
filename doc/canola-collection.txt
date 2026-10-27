@@ -1,7 +1,7 @@
 *canola-collection.txt*  Optional adapters and extensions for canola.nvim
 
 Author: Barrett Ruth
-License: MIT
+License: GPL-3.0
 
 ==============================================================================
 CONTENTS                                          *canola-collection-contents*
