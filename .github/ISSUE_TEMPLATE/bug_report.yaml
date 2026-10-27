@@ -9,7 +9,7 @@ body:
       options:
         - label:
             I have searched [existing
-            issues](https://forge.barrettruth.com/barrettruth/canola-collection/issues)
+            issues](https://github.com/barrettruth/canola-collection/issues)
           required: true
         - label: I have updated to the latest version
           required: true
@@ -63,14 +63,14 @@ body:
         require('lazy').setup({
           spec = {
             {
-              'https://forge.barrettruth.com/barrettruth/canola.nvim',
+              'barrettruth/canola.nvim',
               branch = 'canola',
               init = function()
                 vim.g.canola = {}
               end,
             },
             {
-              'https://forge.barrettruth.com/barrettruth/canola-collection',
+              'barrettruth/canola-collection',
             },
           },
         })

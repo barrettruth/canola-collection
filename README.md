@@ -1,7 +1,7 @@
 # canola-collection
 
 Optional adapters and extensions for
-[canola.nvim](https://forge.barrettruth.com/barrettruth/canola.nvim). Install only what you
+[canola.nvim](https://github.com/barrettruth/canola.nvim). Install only what you
 need — canola core ships with the local filesystem adapter only.
 
 | Component                             | Description                            |
@@ -15,7 +15,8 @@ need — canola core ships with the local filesystem adapter only.
 
 ## Installation
 
-Install with your package manager of choice or via
+Install with your package manager of choice.
+
 Components are opt-in. Define a component's `vim.g.canola_*` table before
 canola-collection loads to register it. Empty tables enable defaults. No
 `setup()` call needed.

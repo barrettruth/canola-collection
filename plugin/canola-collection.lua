@@ -3,10 +3,6 @@ if not ok then
   return
 end
 
-pcall(function()
-  require('canola-collection.migration').warn_if_github_source()
-end)
-
 ---@param cfg unknown
 ---@return boolean
 local function configured(cfg)
